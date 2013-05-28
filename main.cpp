@@ -16,7 +16,6 @@
 
 int main( int argc, char* args[] )
 {
-    
     //srand( (int)time(NULL) );// Comment for debugging
     
     Global::SharedGlobal()->Initialisation();
