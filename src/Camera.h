@@ -9,20 +9,22 @@
 #ifndef Fever_Camera_h
 #define Fever_Camera_h
 
+#include "Global.h"
+
 class Camera
 {
 public:
     
     Camera();
     
-    inline int GetX() const {return m_x;}
-    inline int GetY() const {return m_y;}
-    inline void SetX( float x ) {m_x = x;}
-    inline void SetY( float y ) {m_y = y;}
+    inline int GetX() const {return camera.x;}
+    inline int GetY() const {return camera.y;}
+    inline void SetX( float x ) {camera.x = x;}
+    inline void SetY( float y ) {camera.y = y;}
     
 private:
     
-    float m_x, m_y;
+    SDL_Rect camera;
 };
 
 #endif

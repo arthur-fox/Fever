@@ -16,6 +16,8 @@
 #include "Scene.h"
 #include "Timer.h"
 #include "Colour.h"
+#include "Camera.h"
+
 
 //TODO: FINISH!
 //A NEW ONE CREATED EVERYTIME A PERSON SELECTS A LEVEL
@@ -78,15 +80,15 @@ private:
     
     void OncePerSecond(float delay, CoinManager& rCoin);
     
-    bool Update(Player& rPlayer, Floor& rFloor, int dt, float& dtAccumulator, Colour &rCol, Colour* pCols, bool &up, CoinManager& rCoins);
-    bool UpdateGame(Player& rPlayer, Floor& rFloor, CoinManager& rCoins, int dt = 0);
+    bool Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, int dt, float& dtAccumulator, Colour &rCol, Colour* pCols, bool &up, CoinManager& rCoins);
+    bool UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, int dt = 0);
     bool UpdateColours(Colour &col, Colour* pCols, bool &up, int dt = 0);
     void UpdateCol(Colour &col, bool &up);
     void UpdateScore(Player& rPlayer, CoinManager& rCoins);
     
-    bool Render(Player& rPlayer, Floor& rFloor, Colour* pCols, CoinManager& rCoins);
+    bool Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, Colour* pCols, CoinManager& rCoins);
     
-    bool EndSequence(Player& rPlayer, Floor& rFloor, Colour* pCols);
+    bool EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, Colour* pCols);
     
     void PauseGame(bool& game, bool& playing);
 };

@@ -39,7 +39,7 @@
 #define FORMATS_LEVEL           "lvl"
 
 //Debugging variables
-const bool MATLAB_ON = true;
+const bool MATLAB_ON = false;
 
 //Update attributes
 const bool VARIABLE_TIME_STEP = true;

@@ -39,8 +39,8 @@ public:
     float LerpHeight(); // CURRENTLY NO USE FOR THIS FUNC
     
 	bool virtual Update(float deltaTicks); 
-    void Render(SDL_Surface* pScreen) const;
-    void End(SDL_Surface* pScreen);
+    void virtual Render(SDL_Surface* pScreen, Camera& rCamera) const;
+    void End(SDL_Surface* pScreen, Camera& rCamera) const;
     
     bool OnFloor(GameObject& rObject);
     float ThroughFloor(GameObject& rObject, float deltaTicks);

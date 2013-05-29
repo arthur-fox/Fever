@@ -25,7 +25,7 @@ public:
     void SetSpeed( int s );
     
 	void Update( float delta );
-	void Render( SDL_Surface* pScreen );
+	void Render( SDL_Surface* pScreen, Camera& rCamera);
     
     //Adds coins to platforms vector, returns true if coin added, false otherwise
 	bool AddCoin( int initialX = -1, int initialY = -1 );

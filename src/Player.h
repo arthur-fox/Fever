@@ -22,9 +22,9 @@ public:
     ~Player();
     
 	void HandleInput( float deltaTicks );
-	bool virtual Update( float deltaTicks ); //Return false if its gameover
+	bool virtual Update( float deltaTicks );
     
-    bool End( SDL_Surface* pScreen );
+    bool End( SDL_Surface* pScreen, Camera& rCamera);
 	
 	const CollisionBox virtual MyCollisionBox( float deltaTicks = 0 );
     

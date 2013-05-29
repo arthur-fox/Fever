@@ -10,6 +10,7 @@
 #define Fever_GameObject_h
 
 #include "SDL.h"
+#include "Camera.h"
 
 // GameObject is the superclass for all INTERACTABLE objects in the game 
 // eg. player, coins, floor
@@ -35,7 +36,7 @@ public:
 	//Moves the object, returns true on success - MUST be implemented by actual object 
 	bool virtual Update( float deltaTicks ) = 0;
 	
-	void Render( SDL_Surface* pScreen ) const;
+	void virtual Render( SDL_Surface* pScreen, Camera& rCamera) const;
 	inline float GetX()      const {return m_x;   }
 	inline float GetY()      const {return m_y;   }
 	inline float GetXVel()   const {return m_xVel;}

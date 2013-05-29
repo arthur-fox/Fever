@@ -73,12 +73,12 @@ bool Player::Update(float deltaTicks)
 }
 
 
-bool Player::End(SDL_Surface* pScreen)
+bool Player::End(SDL_Surface* pScreen, Camera& rCamera)
 {
     m_xVel = INIT_WALK;
     
     Update( FIXED_TIME_STEP );
-    Render( pScreen );
+    Render( pScreen, rCamera );
     
     return ( m_x < SCREEN_WIDTH );
 }

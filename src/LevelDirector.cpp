@@ -71,6 +71,7 @@ bool LevelDirector::Run()
     
     Floor floor = Floor( m_filepath );
     Player player = Player( &floor );
+    Camera camera = Camera();
 
     Colour col(120); //Background colour variables
     Colour cols[SCREEN_WIDTH];
@@ -130,7 +131,7 @@ bool LevelDirector::Run()
 		
 		/***** LOGIC *******/
         
-        if ( !Update(player, floor, delta.GetTicks(), dtAccumulator, col, cols, up, coins) )
+        if ( !Update(camera, player, floor, delta.GetTicks(), dtAccumulator, col, cols, up, coins) )
         {
             playing = false;
             break;
@@ -138,7 +139,7 @@ bool LevelDirector::Run()
         
         if (song.GetTicks() >= m_songDuration)
         {
-            game = EndSequence(player, floor, cols);
+            game = EndSequence(camera, player, floor, cols);
             playing = false;
             break;
         }
@@ -146,7 +147,7 @@ bool LevelDirector::Run()
 		delta.Start(); 
         
 		/****** RENDERING *******/
-        Render(player, floor, cols, coins);
+        Render(camera, player, floor, cols, coins);
 		
 		/***** HOUSEKEEPING *****/
 		//If we need to cap the frame rate sleep the remaining frame time 
@@ -184,13 +185,13 @@ void LevelDirector::OncePerSecond( float delay, CoinManager& rCoins )
 #pragma mark Update
 
 //Updates game logic with a fixed-time step, returns false if its GAMEOVER
-bool LevelDirector::Update( Player& rPlayer, Floor& rFloor, int dt, float& dtAccumulator, Colour &rCol, Colour* pCols, bool &rUp, CoinManager& rCoins )
+bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, int dt, float& dtAccumulator, Colour &rCol, Colour* pCols, bool &rUp, CoinManager& rCoins )
 {
     bool result = true;
     
     if (VARIABLE_TIME_STEP) //VARIABLE_TIME_STEP: More dangerous but does not skip frames hence more accurate
     {
-        result = UpdateGame(rPlayer, rFloor, rCoins, dt);
+        result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, dt);
         result &= UpdateColours(rCol, pCols, rUp, dt); 
     }
     else  //FIXED_TIME_STEP: Safer but skips frames! Hence innacurate.
@@ -199,7 +200,7 @@ bool LevelDirector::Update( Player& rPlayer, Floor& rFloor, int dt, float& dtAcc
         int updates = 0;
         for (; (dt >= FIXED_TIME_STEP) && (updates < LIMIT_UPDATES) && result; dt -= FIXED_TIME_STEP, updates++)
         {
-            result = UpdateGame(rPlayer, rFloor, rCoins);
+            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins);
             result &= UpdateColours(rCol, pCols, rUp); 
         }
         //Accumulate remaining ticks left between frames so we don't "play catch up" in the next few frames
@@ -208,7 +209,7 @@ bool LevelDirector::Update( Player& rPlayer, Floor& rFloor, int dt, float& dtAcc
         //Once this has accumulated past a FIXED_TIME_STEP, then update the game logic once again
         while ( dtAccumulator >= FIXED_TIME_STEP && result )
         {
-            result = UpdateGame( rPlayer, rFloor, rCoins ); 
+            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins);
             result &= UpdateColours( rCol, pCols, rUp );
             dtAccumulator -= FIXED_TIME_STEP;
         }
@@ -218,7 +219,7 @@ bool LevelDirector::Update( Player& rPlayer, Floor& rFloor, int dt, float& dtAcc
 }
 
 // Calls update on player, floor and coins
-bool LevelDirector::UpdateGame( Player& rPlayer, Floor& rFloor, CoinManager& rCoins, int dt )
+bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, int dt )
 {
     bool result = true;
     
@@ -233,8 +234,7 @@ bool LevelDirector::UpdateGame( Player& rPlayer, Floor& rFloor, CoinManager& rCo
     
     rCoins.Update( dt );
     
-    if ( !rPlayer.Update( dt ) )
-        result = false;
+    rPlayer.Update( dt );
     
     UpdateScore( rPlayer, rCoins ); 
     
@@ -323,17 +323,17 @@ void LevelDirector::UpdateScore(Player& rPlayer, CoinManager& rCoins)
 #pragma mark Render
 
 //Renders all the assets as necessary, currently return value is just ignored
-bool LevelDirector::Render( Player& rPlayer, Floor& rFloor, Colour* pCols, CoinManager& rCoins )
+bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, Colour* pCols, CoinManager& rCoins )
 {
     bool result = true;
     
     m_pScene->RenderInLevel( m_pScreen, pCols );
     
-    rPlayer.Render( m_pScreen );
+    rPlayer.Render( m_pScreen, rCamera );
     
-    rFloor.Render( m_pScreen );
+    rFloor.Render( m_pScreen, rCamera );
     
-    rCoins.Render( m_pScreen );
+    rCoins.Render( m_pScreen, rCamera );
     
     if( SDL_Flip( m_pScreen ) == -1 )
         exit(1);
@@ -388,7 +388,7 @@ int LevelDirector::PauseEventFilter(const SDL_Event *pEvent)
 #pragma mark -
 #pragma mark LevelEnd
 
-bool LevelDirector::EndSequence( Player& rPlayer, Floor& rFloor, Colour* pCols )
+bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, Colour* pCols )
 {   
     bool game = true;
     
@@ -397,9 +397,9 @@ bool LevelDirector::EndSequence( Player& rPlayer, Floor& rFloor, Colour* pCols )
     {
         m_pScene->RenderLevelOver( m_pScreen, pCols );
         
-        rFloor.End( m_pScreen );
+        rFloor.End(m_pScreen, rCamera);
         
-        ending = rPlayer.End( m_pScreen );
+        ending = rPlayer.End(m_pScreen, rCamera);
         
         if( SDL_Flip( m_pScreen ) == -1 )
             exit(1);
@@ -448,8 +448,8 @@ bool LevelDirector::GenLevel(std::string lvlpath, std::string songpath)
     //    still need to do Coins and Colours
     ret &= Floor::GenFloorPoints(lvlpath, songpath);
     
-    // NOTE: Not deleting atm because these values are useful to look at!!!
     // Generated FINAL_OUTPUT, so I can now delete PARTIAL_OUTPUT
+    // NOTE: Not deleting atm because these values are useful to look at!!!
 //    if ( remove(LEVEL_TEMP) != 0)
 //        printf("Unable to delete LEVEL_TEMP\n");
     

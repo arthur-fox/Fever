@@ -178,7 +178,7 @@ bool Floor::Update( float deltaTicks )
 }
 
 
-void Floor::Render( SDL_Surface* pScreen ) const
+void Floor::Render( SDL_Surface* pScreen, Camera& rCamera ) const
 {
     for(int i = std::max(m_fromKeyPointI, 1); i <= m_toKeyPointI; ++i) 
     {   
@@ -190,7 +190,7 @@ void Floor::Render( SDL_Surface* pScreen ) const
 }
 
 // NOTE: This function is useless as it stands, should just use Render() instead
-void Floor::End( SDL_Surface* pScreen )
+void Floor::End( SDL_Surface* pScreen, Camera& rCamera ) const
 {
     for(int i = std::max(m_fromKeyPointI, 1); i <= m_toKeyPointI; ++i) 
     {        
@@ -220,7 +220,7 @@ const GameObject::CollisionBox Floor::MyCollisionBox( float deltaTicks )
 }
 
 //Returns true if the object is on the floor - compares collision boxes which are abstract concepts
-bool Floor::OnFloor( GameObject& rObject )
+bool Floor::OnFloor( GameObject& rObject ) 
 {
 	const CollisionBox obj   = rObject.MyCollisionBox();
 	const CollisionBox floor = this->MyCollisionBox();
@@ -230,7 +230,7 @@ bool Floor::OnFloor( GameObject& rObject )
 }
 
 //Returns the floor height value if the object has just gone through it, -1 otherwise
-float Floor::ThroughFloor( GameObject& rObject, float deltaTicks )
+float Floor::ThroughFloor( GameObject& rObject, float deltaTicks ) 
 {
 	const CollisionBox obj   = rObject.MyCollisionBox(deltaTicks);
 	const CollisionBox floor = this->MyCollisionBox();

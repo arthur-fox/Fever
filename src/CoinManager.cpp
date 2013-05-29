@@ -68,10 +68,10 @@ void CoinManager::Update(float deltaTicks)
 }
 
 
-void CoinManager::Render(SDL_Surface* pScreen)
+void CoinManager::Render(SDL_Surface* pScreen, Camera& rCamera)
 {	
 	for (m_it=coins.begin(); m_it < coins.end(); m_it++)
-		m_it->Render(pScreen);
+		m_it->Render(pScreen, rCamera);
 }
 
 //Only public access method which adds a new coin to the coins vector 
