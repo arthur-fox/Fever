@@ -64,18 +64,20 @@ Floor::~Floor()
     delete m_pFloorPoints;
 }
 
+
 // TODO: needs to read-in the files floor points to m_floorPoints
 void Floor::SetFloorPoints()
 {
     std::ifstream lvlfile;
     lvlfile.open( m_filename.c_str() );
     std::string songpath;
-    float songDuration; 
+    float songDuration, coinFreq;
     int arrSize;
     
     lvlfile >> songpath;
     lvlfile >> m_levelSpeed;
-    lvlfile >> songDuration; 
+    lvlfile >> songDuration;
+    lvlfile >> coinFreq; 
     lvlfile >> arrSize;
     m_pFloorPoints = new Point[arrSize];
     
@@ -182,11 +184,14 @@ void Floor::Render( SDL_Surface* pScreen, Camera& rCamera ) const
 {
     for(int i = std::max(m_fromKeyPointI, 1); i <= m_toKeyPointI; ++i) 
     {   
-        lineColor( pScreen,m_pFloorPoints[i-1].GetX()-m_offsetX, m_pFloorPoints[i-1].GetY(), m_pFloorPoints[i].GetX()-m_offsetX, m_pFloorPoints[i].GetY(), 0xFFFFFFFF );
+        lineColor( pScreen,(m_pFloorPoints[i-1].GetX()-m_offsetX) - rCamera.GetX(), (m_pFloorPoints[i-1].GetY()) - rCamera.GetY(),
+                           (m_pFloorPoints[i].GetX()-m_offsetX)   - rCamera.GetX(), (m_pFloorPoints[i].GetY())   - rCamera.GetY(), 0xFFFFFFFF );
     }
     
     //DEBUG!
-//    lineColor( pScreen,0, GetHeight(), SCREEN_WIDTH, GetHeight(), 0xFFFF00FF );
+//    lineColor( pScreen,0, GetHeight(), SCREEN_WIDTH, GetHeight(), 0xFFFF00FF ); //Floor Height
+    lineColor( pScreen,0, SCREEN_HEIGHT*(1/9.f), SCREEN_WIDTH, SCREEN_HEIGHT*(1/9.f), 0xFFFF00FF ); //Camera Bottom
+    lineColor( pScreen,0, SCREEN_HEIGHT*(2/3.f), SCREEN_WIDTH, SCREEN_HEIGHT*(2/3.f), 0xFFFF00FF ); //Camera Top
 }
 
 // NOTE: This function is useless as it stands, should just use Render() instead
@@ -194,7 +199,8 @@ void Floor::End( SDL_Surface* pScreen, Camera& rCamera ) const
 {
     for(int i = std::max(m_fromKeyPointI, 1); i <= m_toKeyPointI; ++i) 
     {        
-        lineColor( pScreen,m_pFloorPoints[i-1].GetX()-m_offsetX, m_pFloorPoints[i-1].GetY(), m_pFloorPoints[i].GetX()-m_offsetX, m_pFloorPoints[i].GetY(), 0xFFFFFFFF );
+        lineColor( pScreen,(m_pFloorPoints[i-1].GetX()-m_offsetX) - rCamera.GetX(), (m_pFloorPoints[i-1].GetY()) - rCamera.GetY(),
+                           (m_pFloorPoints[i].GetX()-m_offsetX)   - rCamera.GetX(), (m_pFloorPoints[i].GetY())   - rCamera.GetY(), 0xFFFFFFFF );
     }
     
     // DEBUG
@@ -268,6 +274,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     ilvlfile.close();
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
+    float coinFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * bpm/60)
     
     int originalPointsSize = 0;
     Point* pOriginalPoints = GenOriginalPoints(&originalPointsSize);
@@ -278,7 +285,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     // DEBUG - Write FINAL_OUTPUT_FORMAT using OriginalPoints!
 //    std::ofstream olvlfile( lvlpath.c_str(), std::ios::trunc );
 //    olvlfile << songpath << std::endl;
-//    olvlfile << levelSpeed << " " << duration << " " << originalPointsSize << std::endl;
+//    olvlfile << levelSpeed << " " << duration << " " << coinFreq << " " << originalPointsSize << std::endl;
 //    for (int i = 0; i < originalPointsSize; i++)
 //    {
 //        olvlfile << pOriginalPoints[i].GetX() << " " << pOriginalPoints[i].GetY() << " ";
@@ -289,7 +296,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     // Write FINAL_OUTPUT_FORMAT into the file!
     std::ofstream olvlfile( lvlpath.c_str(), std::ios::trunc );
     olvlfile << songpath << std::endl;
-    olvlfile << levelSpeed << " " << duration << " " << smoothPointsSize << std::endl;
+    olvlfile << levelSpeed << " " << duration << " " << coinFreq << " " << smoothPointsSize << std::endl;
     for (int i = 0; i < smoothPointsSize; i++)
     {
         olvlfile << pSmoothPoints[i].GetX() << " " << pSmoothPoints[i].GetY() << " ";
@@ -342,7 +349,7 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
     ilvlfile.close();
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
-    float xTravelledPerSecond = levelSpeed*HEURISTIC_TIME_LOST; 
+    float xTravelledPerSecond = levelSpeed*HEURISTIC_TIME_LOST;
     *pointsSize = ceil( (duration) * (xTravelledPerSecond/POINT_FREQUENCY) );
     Point* pOriginalPoints = new Point[*pointsSize];
     

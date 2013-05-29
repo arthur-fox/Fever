@@ -9,17 +9,16 @@
 #include "CoinManager.h"
 #include "Global.h"
 
-const int DISTANCE_BETWEEN_COINS = 250; 
-// THIS IS TEMPORARY BEFORE COINS ARE SET BY THE FILE
 
-
-CoinManager::CoinManager(int speed, int width, int height, Floor* pFloor)
+CoinManager::CoinManager(float speed, float freq, int width, int height, Floor* pFloor)
 {
-	m_speed = speed;
+	m_speed = speed;   //int
+    m_coinFreq = freq; //always 180?
     m_width = width;
     m_height = height;
     m_pFloor = pFloor;
     
+    m_creatingCoins = true;
     m_numTouched = 0;
     
     NewCoin(m_width, m_height);
@@ -28,7 +27,7 @@ CoinManager::CoinManager(int speed, int width, int height, Floor* pFloor)
 
 void CoinManager::NewCoin(int initialX, int initialY)
 {
-	Coin coin(m_speed, initialX, initialY);
+	Coin coin(m_speed, initialX, initialY, m_pFloor);
 	coins.push_back(coin);
 }
 
@@ -47,24 +46,27 @@ void CoinManager::Update(float deltaTicks)
 	for (m_it=coins.begin(); m_it < coins.end(); m_it++)
 		m_it->Update(deltaTicks);
     
-    //TODO: THIS NEEDS TO DONE IN THE FILE GENERATION PART!
-    //      JUMP value will be higher for more difficult songs
-    //      and DISTANCE_BETWEEN_COINS will vary too
-    // --> as long as seed is same this will always provide consistent results
-    int JUMP = 200;
-    int coinFloorHeight = m_pFloor->GetLastHeight();
-    
-    int diffInJumpAndFLoor = coinFloorHeight - JUMP;
-    int range = (coinFloorHeight - abs(diffInJumpAndFLoor));                
-    
-    if (range == 0) range = 1;
-    int randHeight = (rand() % range) + abs(diffInJumpAndFLoor);
-    
-    //while (randHeight < COIN_HEIGHT) randHeight += COIN_HEIGHT/2;
-    //while (randHeight + COIN_HEIGHT >= coinFloorHeight) randHeight -= COIN_HEIGHT/2;
-    if (randHeight < COIN_HEIGHT) randHeight = COIN_HEIGHT; //Last ditch attempt!
-       
-    AddCoin(m_width, randHeight);
+    if (m_creatingCoins)
+    {
+        //TODO: THIS NEEDS TO DONE IN THE FILE GENERATION PART!
+        //      JUMP value will be higher for more difficult songs
+        //      and DISTANCE_BETWEEN_COINS will vary too
+        // --> as long as seed is same this will always provide consistent results
+        int JUMP = 200;
+        int coinFloorHeight = m_pFloor->GetLastHeight();
+        
+        int diffInJumpAndFLoor = coinFloorHeight - JUMP;
+        int range = (coinFloorHeight - abs(diffInJumpAndFLoor));                
+        
+        if (range == 0) range = 1;
+        int randHeight = (rand() % range) + abs(diffInJumpAndFLoor);
+        
+        while (randHeight < COIN_HEIGHT) randHeight += COIN_HEIGHT/2;
+        while (randHeight + COIN_HEIGHT >= coinFloorHeight) randHeight -= COIN_HEIGHT/2;
+        if (randHeight < COIN_HEIGHT) randHeight = COIN_HEIGHT; //Last ditch attempt!
+           
+        AddCoin(m_width, randHeight);
+    }
 }
 
 
@@ -77,7 +79,7 @@ void CoinManager::Render(SDL_Surface* pScreen, Camera& rCamera)
 //Only public access method which adds a new coin to the coins vector 
 bool CoinManager::AddCoin(int initialX, int initialY)
 {
-	if (coins.empty() || (coins.back().GetX()<= SCREEN_WIDTH - DISTANCE_BETWEEN_COINS) )
+	if (coins.empty() || (coins.back().GetX()<= SCREEN_WIDTH - m_coinFreq) )
     {
 		NewCoin(initialX, initialY);
 		return true;

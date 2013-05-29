@@ -18,7 +18,7 @@ class CoinManager
 {
 public:
     
-	CoinManager( int speed, int width, int height, Floor* pFloor );
+	CoinManager( float speed, float freq, int width, int height, Floor* pFloor );
 	
 	inline int GetSpeed() const {return m_speed;}
 	inline int GetTouched() const {return m_numTouched;}
@@ -33,6 +33,9 @@ public:
     Coin Remove( int num );
 	void ClearInvisible();
     
+    inline bool IsCreatingCoins() const {return m_creatingCoins;}
+    inline void SetCreatingCoins(bool flag) {m_creatingCoins = flag;}
+    
 private:	
 	//Vector of coins
 	std::vector<Coin> coins;
@@ -43,8 +46,14 @@ private:
     //Reference to the level's floor
     Floor* m_pFloor;
     
-	//Coins' speed
-	int m_speed, m_width, m_height, m_numTouched;
+	//Coins' attributes
+	int m_width, m_height, m_numTouched;
+    
+    //Speed and Frequency of coins - corresponds to bpm
+    float m_speed, m_coinFreq;
+    
+    //Flag saying whether coins are being created or not
+    bool m_creatingCoins;
 	
 	//Creates new platform and adds to platform vector
 	void NewCoin( int initialX = -1, int initialY = -1 );

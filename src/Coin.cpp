@@ -16,7 +16,7 @@ SDL_Surface *Coin::ms_pCoinImg(0);
 #pragma mark CoinFunctions
 
 //Initialise platform variables
-Coin::Coin( int vel, int initialX, int initialY )
+Coin::Coin( int vel, int initialX, int initialY, Floor* pFloor)
 {	
     if ( ms_pCoinImg == 0 )
         InitCoinImages();
@@ -24,7 +24,8 @@ Coin::Coin( int vel, int initialX, int initialY )
     m_x = initialX - COIN_WIDTH;
     m_y = initialY - COIN_HEIGHT;
     
-    //Coins only move horizontally
+    m_pFloor = pFloor;
+    
 	m_yVel = 0;
 	m_xVel = vel;
     
@@ -52,17 +53,19 @@ void Coin::InitCoinImages()
 //Updates the platforms position
 bool Coin::Update( float deltaTicks )
 {
-	//Move platform down
 	m_x -= m_xVel * ( deltaTicks / 1000.f );
-	
-	//Successfully moved
+    
+    float heightDiff = m_pFloor->GetNextHeight() - m_pFloor->GetHeight();
+    
+    m_y += heightDiff/3; // * ( deltaTicks / 1000.f );
+    
 	return true;
 }
 
 //Returns true if Coin is within screen dimensions
 bool Coin::IsVisible()
 {
-	return ( m_x >=0 && m_x <=SCREEN_WIDTH && m_y >= 0 && m_y <= SCREEN_HEIGHT );
+	return ( m_x >=0 && m_x <=SCREEN_WIDTH); // && m_y >= 0 && m_y <= SCREEN_HEIGHT );
 }
 
 #pragma mark -

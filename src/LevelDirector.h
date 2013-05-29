@@ -41,6 +41,7 @@
 const int UPPER_COLOUR = 220;
 const int LOWER_COLOUR = 35;
 const int COLOUR_BAND_WIDTH = 5;    // DECREASE makes variation in background colour LARGER
+const int EXTRA_TIME = 3000;    //Add 3 seconds so that level ends properly.
 
 const int MULTIPLIER_COINS_NEEDED = 10; // DOES THIS BELONG HERE?
 
@@ -68,8 +69,7 @@ private:
 	float m_fps;
     int m_score, m_mult;
     
-    float m_levelSpeed;   //(2 * COLOUR_BAND_WIDTH); // INCREASE makes background speed FASTER
-    int m_songDuration;
+    float m_levelSpeed, m_songDuration, m_coinFreq;
     std::string m_filepath;
     std::string m_songpath;
     

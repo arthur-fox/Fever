@@ -10,6 +10,7 @@
 #define Fever_Coin_h
 
 #include "GameObject.h"
+#include "Floor.h"
 
 //TODO: Finish
 
@@ -21,7 +22,7 @@ class Coin : public GameObject
 public:
     
 	Coin();
-    Coin( int vel, int initialX, int initialY );
+    Coin( int vel, int initialX, int initialY, Floor* pFloor);
     ~Coin();
     
     void InitCoinImages();
@@ -29,7 +30,7 @@ public:
 	void HandleInput( float deltaTicks );
 	bool virtual Update( float deltaTicks ); //Return false if its gameover
 	bool IsVisible();
-    inline void SetSpeed( int vel ) {m_xVel = vel;}
+    inline void SetSpeed( float vel ) {m_xVel = vel;}
     
 	const CollisionBox virtual MyCollisionBox( float deltaTicks = 0 );
     bool TouchCoin( GameObject& rObject );
@@ -37,6 +38,8 @@ public:
 private:
 	
     static SDL_Surface *ms_pCoinImg;
+    
+    Floor* m_pFloor;
 };
 
 #endif

@@ -39,7 +39,7 @@
 #define FORMATS_LEVEL           "lvl"
 
 //Debugging variables
-const bool MATLAB_ON = false;
+const bool MATLAB_ON = true;
 
 //Update attributes
 const bool VARIABLE_TIME_STEP = true;
@@ -92,7 +92,7 @@ const int INIT_SCORE = 0;
 const int INIT_MULT = 1;
 
 //Level constants
-const int WALL_WIDTH = 30;//CHECK: CHANGE THIS VALUE WITH WINDOW SIZE?
+const float WALL_WIDTH = SCREEN_WIDTH/34; //30;
 const float LEVEL_SPEED_FACTOR = 3; //CHECK: THIS VALUE SHOULD NOT BE ARBITRARY?
 const float LEVEL_PADDING = PLAYER_HEIGHT*1.5;
 const int DEFAULT_LEVEL_SPEED = 350;

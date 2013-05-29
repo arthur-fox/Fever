@@ -92,7 +92,7 @@ void Global::InitFontsColors()
     m_whiteColour = white;
     
     std::string font = ms_pPath->PathForFile( RESOURCE_TITLE_FONT );
-    m_pTitleFont  = TTF_OpenFont( font.c_str(), 150 ); // 220 - if title is SINE
+    m_pTitleFont  = TTF_OpenFont( font.c_str(), 220 ); // 150
     font = ms_pPath->PathForFile( RESOURCE_FONT );
     m_pSmallFont  = TTF_OpenFont( font.c_str(), 28 );
     m_pMediumFont = TTF_OpenFont( font.c_str(), 56 );

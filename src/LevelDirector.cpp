@@ -45,8 +45,7 @@ LevelDirector::LevelDirector(const std::string &pFilepath, SDL_Surface* pScreen)
     lvlfile >> m_songpath;
     lvlfile >> m_levelSpeed;    
     lvlfile >> m_songDuration;
-    m_songDuration += 3;// 3 extra seconds just to allow some time to elapse
-                        // NOTE: This should Not be completely arbitrary
+    lvlfile >> m_coinFreq;
     m_songDuration *= 1000; // Convert to milliseconds
 }
 
@@ -70,14 +69,14 @@ bool LevelDirector::Run()
 	int framesPassed = 0;
     
     Floor floor = Floor( m_filepath );
-    Player player = Player( &floor );
+    Player player = Player( &floor, m_levelSpeed);
     Camera camera = Camera();
 
     Colour col(120); //Background colour variables
     Colour cols[SCREEN_WIDTH];
     bool up = true;
     
-    CoinManager coins( m_levelSpeed, SCREEN_WIDTH, floor.GetLastHeight(), &floor );
+    CoinManager coins( m_levelSpeed, m_coinFreq, SCREEN_WIDTH, floor.GetLastHeight(), &floor );
     
 	/** LOOP **/
     
@@ -139,9 +138,14 @@ bool LevelDirector::Run()
         
         if (song.GetTicks() >= m_songDuration)
         {
-            game = EndSequence(camera, player, floor, cols);
-            playing = false;
-            break;
+            coins.SetCreatingCoins(false);
+            
+            if (song.GetTicks() >= m_songDuration  + EXTRA_TIME) // 3 extra seconds allow some more time to elapse
+            {
+                game = EndSequence(camera, player, floor, cols);
+                playing = false;
+                break;
+            }
         }
         
 		delta.Start(); 

@@ -15,7 +15,8 @@
 // NOT SURE HOW TO SET THIS VALUE CORRECTLY
 const float MAX_YVEL = 1000;
 
-Player::Player( Floor* pFloor )
+//NOTE: LevelSpeed was introduced to alter gravity and jump but currently unused
+Player::Player( Floor* pFloor, float levelSpeed )
 {	
 	//Initialise the player offsets
 	m_x = WALL_WIDTH;
@@ -27,8 +28,8 @@ Player::Player( Floor* pFloor )
 	m_pImage = Global::SharedGlobal()->LoadImage( RESOURCE_PLAYER );
 	
     m_pFloor = pFloor;
-	m_jump = INIT_JUMP;      
-    m_gravity = INIT_GRAVITY; 
+	m_jump = INIT_JUMP; 
+    m_gravity = INIT_GRAVITY;
 	//m_walk = INIT_WALK;
 }
 

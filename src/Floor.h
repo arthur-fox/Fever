@@ -32,6 +32,7 @@ public:
     
     inline int GetHeight() const {return FindHeight(0);}
     inline int GetLastHeight() const {return FindHeight(-1);}
+    inline int GetNextHeight() const {return FindHeight(1);}
     
     void SetFloorPoints();
     void SetFloorVertices();

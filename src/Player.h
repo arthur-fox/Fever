@@ -18,7 +18,7 @@ class Player : public GameObject
 {
 public:
     
-	Player( Floor* pFloor );
+	Player( Floor* pFloor, float levelSpeed );
     ~Player();
     
 	void HandleInput( float deltaTicks );
