@@ -46,7 +46,7 @@ void Player::HandleInput( float deltaTicks )
     bool onFloor = m_pFloor->OnFloor( *this );
 	
     //Jump
-	if ( onFloor && pKeystates[SDLK_UP] && m_yVel >= 0 )
+	if ( onFloor && pKeystates[SDLK_UP])
     {
 		m_yVel = -m_jump;
     }
@@ -60,15 +60,11 @@ bool Player::Update(float deltaTicks)
 	m_y += m_yVel * (deltaTicks / 1000.f);
 	m_yVel += m_gravity * (deltaTicks / 1000.f);
     m_yVel = std::min(MAX_YVEL, m_yVel);
-
-	if ( m_yVel >= 0 )
-    {
-        //If player is going through the floor this returns the height of the floor
-		float floorHeight = m_pFloor->ThroughFloor( *this, deltaTicks );
-
-		if ( floorHeight >= 0 )
-			m_y = floorHeight - PLAYER_HEIGHT;                      
-	}
+    
+    //If player is going through the floor this returns the height of the floor
+    float floorHeight = m_pFloor->ThroughFloor( *this, deltaTicks );
+    if ( floorHeight >= 0 )
+        m_y = floorHeight - PLAYER_HEIGHT;
 	
 	return true;	
 }

@@ -41,7 +41,8 @@
 const int UPPER_COLOUR = 220;
 const int LOWER_COLOUR = 35;
 const int COLOUR_BAND_WIDTH = 5;    // DECREASE makes variation in background colour LARGER
-const int EXTRA_TIME = 3000;    //Add 3 seconds so that level ends properly.
+
+const int EXTRA_TIME = 3000;  //This should really be related to levelSpeed
 
 const int MULTIPLIER_COINS_NEEDED = 10; // DOES THIS BELONG HERE?
 

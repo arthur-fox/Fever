@@ -92,9 +92,9 @@ void Global::InitFontsColors()
     m_whiteColour = white;
     
     std::string font = ms_pPath->PathForFile( RESOURCE_TITLE_FONT );
-    m_pTitleFont  = TTF_OpenFont( font.c_str(), 220 ); // 150
+    m_pTitleFont  = TTF_OpenFont( font.c_str(), 220 );
     font = ms_pPath->PathForFile( RESOURCE_FONT );
-    m_pSmallFont  = TTF_OpenFont( font.c_str(), 28 );
+    m_pSmallFont  = TTF_OpenFont( font.c_str(), 36 );
     m_pMediumFont = TTF_OpenFont( font.c_str(), 56 );
     m_pLargeFont  = TTF_OpenFont( font.c_str(), 112 );
     if( m_pSmallFont == NULL || m_pMediumFont == NULL || m_pLargeFont == NULL ){

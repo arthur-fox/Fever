@@ -13,14 +13,13 @@
 #include "GameObject.h"
 #include "Point.h"
 
-// TODO: FINISH UP AND TIDY UP BOTH HEADER AND CLASS FILES!
-
-
-//TODO: THESE VALUES SHOULD PROBABLY BE GOT FROM THE FILE?
-const int MAX_FLOOR_POINTS = 100; 
 const int SEGMENT_WIDTH = 5;
 const int POINT_FREQUENCY = 50; // Every 50x calculate a point
 const float HEURISTIC_TIME_LOST = 0.995;
+
+const float MAX_FLOOR_NORMALISER = 0.5;
+const float MIN_FLOOR_NORMALISER = 0.05; //0.1;
+const float INCREASE_FLOOR_NORMALISER = 0.03;
 
 // Floor draws itself and tells player where it is for collision detection
 class Floor : public GameObject
@@ -51,13 +50,11 @@ public:
     static bool GenFloorPoints(std::string lvlfile, std::string songpath);
     
 private:
-
-    //DEBUG
-    static int m_updateCalled;
     
     std::string m_filename;
     
     float m_levelSpeed;
+    int m_pointsSize;
     int m_fromKeyPointI, m_toKeyPointI;
     float m_offsetX;
     Point* m_pFloorPoints;  // MAKE THIS INTO A VECTOR INSTEAD
@@ -67,11 +64,6 @@ private:
     static Point* GenSmoothPoints(Point* pOriginalPoints, int originalPointsSize, int* smoothPointsSize);
     
     float FindHeight(int at = 0) const;
-    
-    //NOTE: DELETE this later
-    //      can be used to find x-travelled!
-    static float m_COPYoffsetX; //TEMPORARY
-    static void ThreadFunc(); // TEMPORARY
 };
 
 #endif

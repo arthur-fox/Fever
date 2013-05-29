@@ -24,38 +24,18 @@
 //  - Decision needs to be made on whether coins gen'd at runtime or statically
 // -> Tidy up code! Especially genfloor code!
 
-float Floor::m_COPYoffsetX;
-int Floor::m_updateCalled;
-
 Floor::Floor( const std::string &filename )
 {
     m_filename = filename;
     
     m_fromKeyPointI = m_toKeyPointI = 0;
+    m_pointsSize = 0;
     m_offsetX = 0;
     SetFloorPoints();
     SetFloorVertices();
-    
-    //NOTE: TEMPORARY
-    m_COPYoffsetX = 0;
-//    std::thread t( ThreadFunc );
-//    t.detach();
 	
     //NOTE: Just to avoid errors - remove altogether if Floor doesn't use surfaces at all
 	m_pImage = Global::SharedGlobal()->LoadImage( RESOURCE_PLAYER );
-    
-    //DEBUG
-    m_updateCalled = 0;
-}
-
-//NOTE: DEBUG - DELETE this later
-void Floor::ThreadFunc()
-{
-    for (int i = 0; i < 216; i++)
-    {
-        std::cout << i << ": " << m_COPYoffsetX << ", " << m_updateCalled << std::endl;
-        std::this_thread::sleep_for( std::chrono::seconds(1) );
-    }
 }
 
 Floor::~Floor()
@@ -72,16 +52,15 @@ void Floor::SetFloorPoints()
     lvlfile.open( m_filename.c_str() );
     std::string songpath;
     float songDuration, coinFreq;
-    int arrSize;
     
     lvlfile >> songpath;
     lvlfile >> m_levelSpeed;
     lvlfile >> songDuration;
     lvlfile >> coinFreq; 
-    lvlfile >> arrSize;
-    m_pFloorPoints = new Point[arrSize];
+    lvlfile >> m_pointsSize;
+    m_pFloorPoints = new Point[m_pointsSize];
     
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i < m_pointsSize; i++)
     {
         int x, y;
         lvlfile >> x;
@@ -89,12 +68,7 @@ void Floor::SetFloorPoints()
         m_pFloorPoints[i] = Point(x,y);
     }
     
-    
     lvlfile.close();
-    
-    //DEBUG - TEMPORARY
-//    m_COPYoffsetX = arrSize;
-//    std::cout << "Total Points: " << arrSize << std::endl;
 }
 
 void Floor::SetFloorVertices()
@@ -108,10 +82,6 @@ void Floor::SetFloorVertices()
     while ( m_pFloorPoints[m_toKeyPointI].GetX() < m_offsetX+winSize.GetX()*9/8 ) {
         m_toKeyPointI++;
     }
-    
-    //DEBUG - TEMPORARY
-//    if (m_toKeyPointI >= m_COPYoffsetX )
-//        std::cout << "Ran out of Points!" << std::endl;
 }
 
 //NOTE: CURRENTLY NO USE FOR THIS FUNCTION
@@ -152,7 +122,7 @@ float Floor::FindHeight( int at ) const
     }
     else
     {
-        int i = std::min(m_toKeyPointI, (MAX_FLOOR_POINTS*MAX_FLOOR_POINTS-1));
+        int i = std::min(m_toKeyPointI, (int)(m_pointsSize*POINT_FREQUENCY*1.5));
         while ( (m_pFloorPoints[i].GetX() - m_offsetX) > SCREEN_WIDTH - COIN_WIDTH/2)
         {
             i--;
@@ -165,14 +135,8 @@ float Floor::FindHeight( int at ) const
 
 //Updates the floor's state taking time elapsed into account
 bool Floor::Update( float deltaTicks )
-{	
-    //DEBUG
-    m_updateCalled++;
-    
-    //TODO: FIX THIS
-    // THE GAME WILL NOT WORK IF THIS IS NOT RELIABLE/PREDICTABLE
+{
     m_offsetX += m_levelSpeed * (deltaTicks/1000.f);
-    m_COPYoffsetX = m_offsetX;  //DEBUG
     
     SetFloorVertices();
     
@@ -190,8 +154,8 @@ void Floor::Render( SDL_Surface* pScreen, Camera& rCamera ) const
     
     //DEBUG!
 //    lineColor( pScreen,0, GetHeight(), SCREEN_WIDTH, GetHeight(), 0xFFFF00FF ); //Floor Height
-    lineColor( pScreen,0, SCREEN_HEIGHT*(1/9.f), SCREEN_WIDTH, SCREEN_HEIGHT*(1/9.f), 0xFFFF00FF ); //Camera Bottom
-    lineColor( pScreen,0, SCREEN_HEIGHT*(2/3.f), SCREEN_WIDTH, SCREEN_HEIGHT*(2/3.f), 0xFFFF00FF ); //Camera Top
+//    lineColor( pScreen,0, SCREEN_HEIGHT*(1/9.f), SCREEN_WIDTH, SCREEN_HEIGHT*(1/9.f), 0xFFFF00FF ); //Camera Bottom
+//    lineColor( pScreen,0, SCREEN_HEIGHT*(2/3.f), SCREEN_WIDTH, SCREEN_HEIGHT*(2/3.f), 0xFFFF00FF ); //Camera Top
 }
 
 // NOTE: This function is useless as it stands, should just use Render() instead
@@ -204,13 +168,12 @@ void Floor::End( SDL_Surface* pScreen, Camera& rCamera ) const
     }
     
     // DEBUG
-    for(int i = m_fromKeyPointI-20; i <= m_toKeyPointI; ++i) 
-    {        
-        std::cout << m_pFloorPoints[i-1].GetY() << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "OffsetX: " << m_offsetX << std::endl;
-    std::cout << "Updates: " << m_updateCalled << std::endl;
+//    for(int i = m_fromKeyPointI-20; i <= m_toKeyPointI; ++i) 
+//    {        
+//        std::cout << m_pFloorPoints[i-1].GetY() << " ";
+//    }
+//    std::cout << std::endl;
+//    std::cout << "OffsetX: " << m_offsetX << std::endl;
 }
 
 //Method which creates a collision box for the floor
@@ -274,7 +237,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     ilvlfile.close();
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
-    float coinFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * bpm/60)
+    float coinFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * 60/bpm)*2
     
     int originalPointsSize = 0;
     Point* pOriginalPoints = GenOriginalPoints(&originalPointsSize);
@@ -312,14 +275,6 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
 
 Point* Floor::GenOriginalPoints(int* pointsSize)
 {
-    //    PARTIAL_OUTPUT_FORMAT:
-    //    Signature
-    //    Tempo 
-    //    SongDuration(secs)
-    //    EnvelopeSampling 
-    //    EnvelopeArrSize
-    //    [EnvelopeArr]
-    
     std::ifstream ilvlfile;
     ilvlfile.open( LEVEL_TEMP );
     if ( !ilvlfile.good() )
@@ -340,13 +295,19 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
     
     float* envelopeArr = new float[envSize];
     
-    float maxVal = 0;
+    float normaliser = 0;
     for (int i = 0; i < envSize; i++)
     {
         ilvlfile >> envelopeArr[i];
-        maxVal = std::max(maxVal,envelopeArr[i]);
+        normaliser = std::max(normaliser,envelopeArr[i]);
     }
     ilvlfile.close();
+    
+    // Adjust Normaliser: Normaliser = (LargestVal/MaxNorm * Range) + MinNorm!
+    // OR just Increase by a small amount - with larger numbers the increase is less noticeable hence similar effect
+//    normaliser = (normaliser/MAX_FLOOR_NORMALISER) * (MAX_FLOOR_NORMALISER - MIN_FLOOR_NORMALISER) + MIN_FLOOR_NORMALISER;
+    normaliser += INCREASE_FLOOR_NORMALISER;
+    
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
     float xTravelledPerSecond = levelSpeed*HEURISTIC_TIME_LOST;
@@ -362,7 +323,7 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
         
         // Sums values between given interval
         for ( int j = (i-1)*dataUsedPerPoint; j < i*dataUsedPerPoint; j++ )
-            y += (envelopeArr[j]/maxVal);
+            y += (envelopeArr[j]/normaliser);
         
         // Find mean of y
         y /= dataUsedPerPoint;
@@ -371,7 +332,8 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
         // - Values are currently [0,0.5] so y*SCREEN_HEIGHT*2?
         y *= LEVEL_HEIGHT; 
         y += LEVEL_PADDING;
-        if (y >= LEVEL_HEIGHT) y = LEVEL_HEIGHT;
+//        if (y >= LEVEL_HEIGHT)
+//            y = LEVEL_HEIGHT;
         
         pOriginalPoints[i] = Point(x,y);
     }

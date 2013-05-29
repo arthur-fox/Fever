@@ -136,11 +136,12 @@ bool LevelDirector::Run()
             break;
         }
         
-        if (song.GetTicks() >= m_songDuration)
+        
+        if (song.GetTicks() >= m_songDuration - EXTRA_TIME) //Stop coins EXTRA_TIME early so we never get coins before level stopped
         {
             coins.SetCreatingCoins(false);
             
-            if (song.GetTicks() >= m_songDuration  + EXTRA_TIME) // 3 extra seconds allow some more time to elapse
+            if (song.GetTicks() >= m_songDuration + EXTRA_TIME) // EXTRA_TIME seconds allow some more time to elapse
             {
                 game = EndSequence(camera, player, floor, cols);
                 playing = false;

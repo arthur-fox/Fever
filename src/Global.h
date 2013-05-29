@@ -39,7 +39,7 @@
 #define FORMATS_LEVEL           "lvl"
 
 //Debugging variables
-const bool MATLAB_ON = true;
+const bool MATLAB_ON = false;
 
 //Update attributes
 const bool VARIABLE_TIME_STEP = true;
@@ -55,7 +55,7 @@ const int SCREEN_BPP = 32;
 
 //The dimensions of the level 
 const int LEVEL_WIDTH = SCREEN_WIDTH; //WRONG! - THIS VARIES BETWEEN SONGS!
-const int LEVEL_HEIGHT = SCREEN_HEIGHT;
+const int LEVEL_HEIGHT = SCREEN_HEIGHT*1.3;
 
 //File attributes
 const int MAX_PATH_SIZE = 200;
