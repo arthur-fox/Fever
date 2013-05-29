@@ -23,7 +23,7 @@
 
 #define RESOURCE_PATH           "Fever.app/Contents/Resources/"
 #define RESOURCE_TITLE_FONT     "ldmusic.ttf"
-#define RESOURCE_FONT           "Insignia.otf"//"FuturaMedium.ttf"
+#define RESOURCE_FONT           "Insignia.otf"
 #define RESOURCE_PLAYER         "Blob2.png"
 #define RESOURCE_COIN           "SimpleCoin2.png"
 

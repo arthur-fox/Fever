@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Blob.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>ArthurFox.${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>Arthur.ox${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -29,7 +29,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2013 OMA. All rights reserved.</string>
 	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
+	<string>SDLMain</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

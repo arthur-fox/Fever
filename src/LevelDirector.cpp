@@ -236,6 +236,8 @@ bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, 
     
     rPlayer.Update( dt );
     
+    rCamera.Update( dt, Point(rPlayer.GetX(), rPlayer.GetY()) );
+    
     UpdateScore( rPlayer, rCoins ); 
     
     return result;

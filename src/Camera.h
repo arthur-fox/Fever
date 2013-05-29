@@ -10,6 +10,7 @@
 #define Fever_Camera_h
 
 #include "Global.h"
+#include "Point.h"
 
 class Camera
 {
@@ -17,14 +18,17 @@ public:
     
     Camera();
     
-    inline int GetX() const {return camera.x;}
-    inline int GetY() const {return camera.y;}
-    inline void SetX( float x ) {camera.x = x;}
-    inline void SetY( float y ) {camera.y = y;}
+    bool Update(float dt, Point playerPosition);
+    
+    inline float GetX() const {return m_x;}
+    inline float GetY() const {return m_y;}
+//    inline void SetX( float x ) {m_x = x;}
+//    inline void SetY( float y ) {m_y = y;}
     
 private:
     
-    SDL_Rect camera;
+    float m_x, m_y, m_w, m_h;
+    float m_xVel, m_yVel;
 };
 
 #endif
