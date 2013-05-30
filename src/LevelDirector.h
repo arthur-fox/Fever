@@ -12,8 +12,9 @@
 #include "Global.h"
 #include "Player.h"
 #include "CoinManager.h"
+#include "SceneManager.h"
+#include "ColourManager.h"
 #include "Floor.h"
-#include "Scene.h"
 #include "Timer.h"
 #include "Colour.h"
 #include "Camera.h"
@@ -37,15 +38,10 @@
 // The level must make all the decisions based on a file that the GameDirector gives it!
 // Hopefully decouple everything!
 
-// Defines colour boundaries
-const int UPPER_COLOUR = 220;
-const int LOWER_COLOUR = 35;
-const int COLOUR_BAND_WIDTH = 5;    // DECREASE makes variation in background colour LARGER
+
 
 const int EXTRA_TIME = 3000;  //This should really be related to levelSpeed
-
 const int MULTIPLIER_COINS_NEEDED = 10; // DOES THIS BELONG HERE?
-
 
 // LevelDirector knows how to play the level it is initialised with
 class LevelDirector
@@ -63,7 +59,7 @@ private:
     
     static Global* ms_pGlobal; //Needs to be static because of the Event Filters
     
-    Scene* m_pScene;
+    SceneManager* m_pSceneManager;
     SDL_Event m_event;
 	SDL_Surface *m_pScreen, *m_pPause;
     
@@ -81,15 +77,17 @@ private:
     
     void OncePerSecond(float delay, CoinManager& rCoin);
     
-    bool Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, int dt, float& dtAccumulator, Colour &rCol, Colour* pCols, bool &up, CoinManager& rCoins);
-    bool UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, int dt = 0);
-    bool UpdateColours(Colour &col, Colour* pCols, bool &up, int dt = 0);
-    void UpdateCol(Colour &col, bool &up);
+    bool Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, int dt, float& dtAccumulator);
+    bool UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, float dt);
     void UpdateScore(Player& rPlayer, CoinManager& rCoins);
     
-    bool Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, Colour* pCols, CoinManager& rCoins);
+    //    bool UpdateColours(Colour &col, Colour* pCols, bool &up, int dt = 0);
+    //    void UpdateCol(Colour &col, bool &up);
+
     
-    bool EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, Colour* pCols);
+    bool Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours);
+    
+    bool EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, ColourManager& rColours);
     
     void PauseGame(bool& game, bool& playing);
 };

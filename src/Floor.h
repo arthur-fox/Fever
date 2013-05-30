@@ -38,14 +38,14 @@ public:
     
     float LerpHeight(); // CURRENTLY NO USE FOR THIS FUNC
     
-	bool virtual Update(float deltaTicks); 
+	bool virtual Update(float dt); 
     void virtual Render(SDL_Surface* pScreen, Camera& rCamera) const;
     void End(SDL_Surface* pScreen, Camera& rCamera) const;
     
     bool OnFloor(GameObject& rObject);
-    float ThroughFloor(GameObject& rObject, float deltaTicks);
+    float ThroughFloor(GameObject& rObject, float dt);
 	
-	const CollisionBox virtual MyCollisionBox(float deltaTicks = 0);
+	const CollisionBox virtual MyCollisionBox(float dt = 0);
     
     static bool GenFloorPoints(std::string lvlfile, std::string songpath);
     

@@ -1,18 +1,18 @@
 //
-//  Scene.cpp
+//  SceneManager.cpp
 //  Fever
 //
 //  Created by Arthur Fox on 14/02/2013.
 //  Copyright (c) 2013 OMA. All rights reserved.
 //
 
-#include "Scene.h"
+#include "SceneManager.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 
 //initialise platform array and speed
-Scene::Scene()
+SceneManager::SceneManager()
 {
     m_pGlobal = Global::SharedGlobal();
     
@@ -87,32 +87,24 @@ Scene::Scene()
 #pragma mark Updates
 
 
-void Scene::UpdateInLevel( float deltaTicks, float fps, int sc, int mult )
+void SceneManager::UpdateInLevel( float dt, float fps, int sc, int mult )
 {
-    UpdateLevel( deltaTicks );
     UpdateFrameRate( fps );
     UpdateMultiplier( mult );
     UpdateScore( sc );
 }
 
 
-void Scene::ResetScene()
+void SceneManager::ResetScene()
 {
     m_bgX = m_bgY = 0;
     UpdateFrameRate( 0 );
     UpdateScore( 0 );
 }
 
-//Updates the background speed so it keeps in sync with the platforms
-// NEEDED?
-void Scene::UpdateLevel( float deltaTicks )
-{
-
-}
-
 
 //Update the frame rate
-void Scene::UpdateFrameRate( float fps )
+void SceneManager::UpdateFrameRate( float fps )
 {
 	std::stringstream stream;
 	stream << std::setprecision(2) << fps;
@@ -123,7 +115,7 @@ void Scene::UpdateFrameRate( float fps )
 }
 
 //Update the multiplier
-void Scene::UpdateMultiplier( int mult )
+void SceneManager::UpdateMultiplier( int mult )
 {
 	std::stringstream stream;
 	stream << "x" << mult;
@@ -134,7 +126,7 @@ void Scene::UpdateMultiplier( int mult )
 }
 
 //Update the frame score
-void Scene::UpdateScore( int sc )
+void SceneManager::UpdateScore( int sc )
 {
 	std::stringstream stream;
 	stream << sc;
@@ -150,7 +142,7 @@ void Scene::UpdateScore( int sc )
 
 // Renders the background in the main menu
 // -- too many magic numbers in this function?
-void Scene::RenderInMainMenu( SDL_Surface* pScreen, int option )
+void SceneManager::RenderInMainMenu( SDL_Surface* pScreen, int option )
 {
     float color = SDL_MapRGB( pScreen->format, 100, 30, 30 );
     SDL_FillRect( pScreen, NULL , color );
@@ -167,10 +159,8 @@ void Scene::RenderInMainMenu( SDL_Surface* pScreen, int option )
 }
 
 // Renders the scrolling background for in-game
-void Scene::RenderInLevel( SDL_Surface* pScreen, Colour* cols )
+void SceneManager::RenderInLevel( SDL_Surface* pScreen )
 {
-    RenderBackground( pScreen, cols );
-    
     //Render the frame rate and score
     m_pGlobal->ApplySurface( 10, 0, m_pMult, pScreen );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, 0, m_pFrames, pScreen );
@@ -184,48 +174,8 @@ void Scene::RenderInLevel( SDL_Surface* pScreen, Colour* cols )
 }
 
 
-void Scene::RenderLevelOver( SDL_Surface* pScreen, Colour* cols )
+void SceneManager::RenderLevelOver( SDL_Surface* pScreen )
 {   
-    RenderBackground(pScreen, cols);
-    
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pGameOverText->w)/2, (SCREEN_HEIGHT - m_pGameOverText->h)/2 - 50, m_pGameOverText, pScreen );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, (SCREEN_HEIGHT - m_pScore->h)/2 + 10, m_pScore, pScreen );
 }
-
-
-void Scene::RenderBackground( SDL_Surface* pScreen, Colour *cols )
-{
-    Uint32 scanline[SCREEN_WIDTH];
-    
-    // Save pixel values for background scanline
-    for (int i = 0; i <  SCREEN_WIDTH; i++)
-    {
-        scanline[i] = SDL_MapRGB( pScreen->format, cols[i].GetR(), cols[i].GetG(), cols[i].GetB() );
-    }
-    
-    // Manually copy background pixel data over!
-    SDL_LockSurface(pScreen);
-    Uint32* pPixelData = static_cast<Uint32*> (pScreen->pixels);
-    for (int j = 0; j < SCREEN_HEIGHT; j++)
-    {
-        memcpy(pPixelData+j*SCREEN_WIDTH, scanline, SCREEN_WIDTH*4);
-    }
-    SDL_UnlockSurface(pScreen);
-}
-
-// Colour the background
-//for ( int i = 0; i < SCREEN_WIDTH; i++ )
-//{
-//    
-//    Uint32 color = SDL_MapRGB( pScreen->format, cols[i].GetR(), cols[i].GetG(), cols[i].GetB() );
-//    
-//    SDL_Rect rect;
-//    rect.x = i;
-//    rect.w = 1;
-//    rect.y = 0;
-//    rect.h = SCREEN_HEIGHT;
-//    
-//    //FIX: THIS IS VERY SLOW
-//    SDL_FillRect( m_pTemp, &rect , color );
-//}
-//m_pGlobal->ApplySurface(0, 0, m_pTemp, pScreen);

@@ -39,7 +39,7 @@ Player::~Player()
 }
 
 //Handle the input accordingly so that the update can perform correctly
-void Player::HandleInput( float deltaTicks )
+void Player::HandleInput( float dt )
 {	
 	Uint8* pKeystates = SDL_GetKeyState( NULL );
     
@@ -53,16 +53,16 @@ void Player::HandleInput( float deltaTicks )
 }
 
 //Updates the player's state taking time elapsed into account
-bool Player::Update(float deltaTicks)
+bool Player::Update(float dt)
 {
-	m_x += m_xVel * (deltaTicks / 1000.f);
+	m_x += m_xVel * (dt / 1000.f);
 	
-	m_y += m_yVel * (deltaTicks / 1000.f);
-	m_yVel += m_gravity * (deltaTicks / 1000.f);
+	m_y += m_yVel * (dt / 1000.f);
+	m_yVel += m_gravity * (dt / 1000.f);
     m_yVel = std::min(MAX_YVEL, m_yVel);
     
     //If player is going through the floor this returns the height of the floor
-    float floorHeight = m_pFloor->ThroughFloor( *this, deltaTicks );
+    float floorHeight = m_pFloor->ThroughFloor( *this, dt );
     if ( floorHeight >= 0 )
         m_y = floorHeight - PLAYER_HEIGHT;
 	
@@ -80,8 +80,8 @@ bool Player::End(SDL_Surface* pScreen, Camera& rCamera)
     return ( m_x < SCREEN_WIDTH );
 }
 
-//Method which creates a collision box for the player, if deltaTicks -1 Time is not taken into account
-const GameObject::CollisionBox Player::MyCollisionBox(float deltaTicks)
+//Method which creates a collision box for the player, if dt -1 Time is not taken into account
+const GameObject::CollisionBox Player::MyCollisionBox(float dt)
 {
 	CollisionBox col = CollisionBox();
 	col.x1 = m_x;				
@@ -91,9 +91,9 @@ const GameObject::CollisionBox Player::MyCollisionBox(float deltaTicks)
 	
     //CHECK: IS THE PART BELOW CORRECT
 	//If we are dealing with Time then the bottom has moved, otherwise set it to what it currently is
-	if ( deltaTicks > 0 )
+	if ( dt > 0 )
     {
-		col.y1 = (m_y + PLAYER_HEIGHT) - m_yVel * ( deltaTicks / 1000.f );          // TOP PART = BOTTOM PART BEFORE MOVING 
+		col.y1 = (m_y + PLAYER_HEIGHT) - m_yVel * ( dt / 1000.f );          // TOP PART = BOTTOM PART BEFORE MOVING 
     }
 
 	return col;

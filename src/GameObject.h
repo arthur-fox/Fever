@@ -30,11 +30,11 @@ public:
 		CollisionBox();
 	};
 	
-	//Returns the object's collision line - uses deltaTicks to calculate y1 and MUST be implemented by object
-	const CollisionBox virtual MyCollisionBox( float deltaTicks = 0 ) = 0;
+	//Returns the object's collision line - uses dt to calculate y1 and MUST be implemented by object
+	const CollisionBox virtual MyCollisionBox( float dt = 0 ) = 0;
 	
 	//Moves the object, returns true on success - MUST be implemented by actual object 
-	bool virtual Update( float deltaTicks ) = 0;
+	bool virtual Update( float dt ) = 0;
 	
 	void virtual Render( SDL_Surface* pScreen, Camera& rCamera) const;
 	inline float GetX()      const {return m_x;   }

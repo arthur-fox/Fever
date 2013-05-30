@@ -23,7 +23,7 @@ LevelDirector::LevelDirector(const std::string &pFilepath, SDL_Surface* pScreen)
     
     m_pScreen = pScreen;
     
-    m_pScene = new Scene();
+    m_pSceneManager = new SceneManager();
     
     m_fps = FRAMES_PER_SECOND;
     m_mult = INIT_MULT;
@@ -71,12 +71,9 @@ bool LevelDirector::Run()
     Floor floor = Floor( m_filepath );
     Player player = Player( &floor, m_levelSpeed);
     Camera camera = Camera();
-
-    Colour col(120); //Background colour variables
-    Colour cols[SCREEN_WIDTH];
-    bool up = true;
     
-    CoinManager coins( m_levelSpeed, m_coinFreq, SCREEN_WIDTH, floor.GetLastHeight(), &floor );
+    CoinManager coins = CoinManager( m_levelSpeed, m_coinFreq, SCREEN_WIDTH, floor.GetLastHeight(), &floor );
+    ColourManager colours = ColourManager(m_levelSpeed);
     
 	/** LOOP **/
     
@@ -86,7 +83,7 @@ bool LevelDirector::Run()
     Mix_FadeInMusic( pMusic, 0, 5000 ); 
     song.Start();
     
-    m_pScene->ResetScene();
+    m_pSceneManager->ResetScene();
     delta.Start();
     
 	while( playing )
@@ -130,7 +127,7 @@ bool LevelDirector::Run()
 		
 		/***** LOGIC *******/
         
-        if ( !Update(camera, player, floor, delta.GetTicks(), dtAccumulator, col, cols, up, coins) )
+        if ( !Update(camera, player, floor, coins, colours, delta.GetTicks(), dtAccumulator) )
         {
             playing = false;
             break;
@@ -143,7 +140,7 @@ bool LevelDirector::Run()
             
             if (song.GetTicks() >= m_songDuration + EXTRA_TIME) // EXTRA_TIME seconds allow some more time to elapse
             {
-                game = EndSequence(camera, player, floor, cols);
+                game = EndSequence(camera, player, floor, colours);
                 playing = false;
                 break;
             }
@@ -152,7 +149,7 @@ bool LevelDirector::Run()
 		delta.Start(); 
         
 		/****** RENDERING *******/
-        Render(camera, player, floor, cols, coins);
+        Render(camera, player, floor, coins, colours);
 		
 		/***** HOUSEKEEPING *****/
 		//If we need to cap the frame rate sleep the remaining frame time 
@@ -190,14 +187,13 @@ void LevelDirector::OncePerSecond( float delay, CoinManager& rCoins )
 #pragma mark Update
 
 //Updates game logic with a fixed-time step, returns false if its GAMEOVER
-bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, int dt, float& dtAccumulator, Colour &rCol, Colour* pCols, bool &rUp, CoinManager& rCoins )
+bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, int dt, float& dtAccumulator)
 {
     bool result = true;
     
     if (VARIABLE_TIME_STEP) //VARIABLE_TIME_STEP: More dangerous but does not skip frames hence more accurate
     {
-        result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, dt);
-        result &= UpdateColours(rCol, pCols, rUp, dt); 
+        result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, dt);
     }
     else  //FIXED_TIME_STEP: Safer but skips frames! Hence innacurate.
     {
@@ -205,8 +201,7 @@ bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, int 
         int updates = 0;
         for (; (dt >= FIXED_TIME_STEP) && (updates < LIMIT_UPDATES) && result; dt -= FIXED_TIME_STEP, updates++)
         {
-            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins);
-            result &= UpdateColours(rCol, pCols, rUp); 
+            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, FIXED_TIME_STEP);
         }
         //Accumulate remaining ticks left between frames so we don't "play catch up" in the next few frames
         dtAccumulator += dt;
@@ -214,8 +209,7 @@ bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, int 
         //Once this has accumulated past a FIXED_TIME_STEP, then update the game logic once again
         while ( dtAccumulator >= FIXED_TIME_STEP && result )
         {
-            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins);
-            result &= UpdateColours( rCol, pCols, rUp );
+            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, FIXED_TIME_STEP);
             dtAccumulator -= FIXED_TIME_STEP;
         }
     }
@@ -224,16 +218,13 @@ bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, int 
 }
 
 // Calls update on player, floor and coins
-bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, int dt )
+bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, float dt )
 {
     bool result = true;
     
-    if (!VARIABLE_TIME_STEP)
-        dt = FIXED_TIME_STEP;
-    
     rPlayer.HandleInput( dt );
     
-    m_pScene->UpdateInLevel( dt, m_fps, m_score, m_mult );
+    m_pSceneManager->UpdateInLevel( dt, m_fps, m_score, m_mult );
     
     rFloor.Update( dt );
     
@@ -243,74 +234,12 @@ bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, 
     
     rCamera.Update( dt, Point(rPlayer.GetX(), rPlayer.GetY()) );
     
+    rColours.Update( dt );
+    
     UpdateScore( rPlayer, rCoins ); 
     
     return result;
 }
-
-// For updating the background - DOES THIS BELONG HERE?
-//  -- Still need to make this relate to the song
-bool LevelDirector::UpdateColours( Colour &rCol, Colour* pCols, bool &rUp, int dt )
-{
-    static float dtCol = 0;
-    
-    if (!VARIABLE_TIME_STEP)
-        dt = FIXED_TIME_STEP;
-    
-    Colour tempCol = rCol; 
-    bool tempUp = rUp;
-    
-    // Update cols array
-    for ( int i = 0; i < SCREEN_WIDTH; i++ )
-    {
-        if (i % COLOUR_BAND_WIDTH == 0)
-        {                    
-            UpdateCol(tempCol, tempUp);
-        }
-        // CHECK: POSSIBLE MEMORY LEAK!
-        pCols[i] = tempCol;
-    }
-    
-    // Set the col and up variables correctly for next loop
-    dtCol += (m_levelSpeed * dt/1000.f);    //USING VARIABLE DT GIVES CRAZY RESULTS WHEN FRAME RATE DIPS!
-    if (dtCol > 1)
-    {
-        int speed = (int) dtCol;
-        int next_colour = speed*COLOUR_BAND_WIDTH;
-        dtCol -= speed;
-        
-        if ( rCol.LessThan(pCols[next_colour]) )
-        {
-            rUp = true;
-        } 
-        else
-        {
-            rUp = false;
-        }
-        
-        rCol = pCols[next_colour];
-    }
-    
-    return true;
-}
-
-//Update col variable according to UP bool - DOES THIS BELONG HERE?
-void LevelDirector::UpdateCol( Colour &rCol, bool &rUp )
-{
-    // Increment or decrement colour depending on up
-    rUp ? rCol.Inc(): rCol.Dec();
-
-    // Update boolean up after updating col   
-    if (rCol.GreaterThan(UPPER_COLOUR) )
-    {
-        rUp = false;
-    }
-    else if (rCol.LessThan(LOWER_COLOUR) ) 
-    {
-        rUp = true;
-    }
-}
-
 
 void LevelDirector::UpdateScore(Player& rPlayer, CoinManager& rCoins)
 {
@@ -323,18 +252,22 @@ void LevelDirector::UpdateScore(Player& rPlayer, CoinManager& rCoins)
     
     m_mult = (rCoins.GetTouched()/MULTIPLIER_COINS_NEEDED +1);
     
-//    if( rCoins.getTouched()%MULTIPLIER_COINS_NEEDED == 0) DO SOMETHING PRETTY ONSCREEN
+    //    if( rCoins.getTouched()%MULTIPLIER_COINS_NEEDED == 0)
+    //  DO SOMETHING PRETTY ONSCREEN
+    //  PROBABLY WITH EffectsManager
 }
 
 #pragma mark -
 #pragma mark Render
 
 //Renders all the assets as necessary, currently return value is just ignored
-bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, Colour* pCols, CoinManager& rCoins )
+bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours )
 {
     bool result = true;
     
-    m_pScene->RenderInLevel( m_pScreen, pCols );
+    rColours.Render( m_pScreen );
+    
+    m_pSceneManager->RenderInLevel( m_pScreen );
     
     rPlayer.Render( m_pScreen, rCamera );
     
@@ -395,14 +328,16 @@ int LevelDirector::PauseEventFilter(const SDL_Event *pEvent)
 #pragma mark -
 #pragma mark LevelEnd
 
-bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, Colour* pCols )
+bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, ColourManager& rColours )
 {   
     bool game = true;
     
     bool ending = true;
     while ( ending )
     {
-        m_pScene->RenderLevelOver( m_pScreen, pCols );
+        rColours.Render(m_pScreen);
+        
+        m_pSceneManager->RenderLevelOver( m_pScreen);
         
         rFloor.End(m_pScreen, rCamera);
         

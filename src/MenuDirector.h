@@ -10,7 +10,7 @@
 #define Fever_MenuDirector_h
 
 #include "Global.h"
-#include "Scene.h"
+#include "SceneManager.h"
 
 // MenuDirector knows how to run the main menu
 
@@ -32,7 +32,7 @@ private:
     static std::string ms_spath, ms_sname, ms_lpath; // HACK: because C++11 stuff wasn't playing ball! I statically give these values over to generate function.
     
     
-    Scene* m_pScene;
+    SceneManager* m_pSceneManager;
     SDL_Event m_event;
 	SDL_Surface* m_pScreen;
     int m_option;

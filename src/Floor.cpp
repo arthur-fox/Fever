@@ -134,9 +134,9 @@ float Floor::FindHeight( int at ) const
 }
 
 //Updates the floor's state taking time elapsed into account
-bool Floor::Update( float deltaTicks )
+bool Floor::Update( float dt )
 {
-    m_offsetX += m_levelSpeed * (deltaTicks/1000.f);
+    m_offsetX += m_levelSpeed * (dt/1000.f);
     
     SetFloorVertices();
     
@@ -177,7 +177,7 @@ void Floor::End( SDL_Surface* pScreen, Camera& rCamera ) const
 }
 
 //Method which creates a collision box for the floor
-const GameObject::CollisionBox Floor::MyCollisionBox( float deltaTicks )
+const GameObject::CollisionBox Floor::MyCollisionBox( float dt )
 {
 	CollisionBox col = CollisionBox();
 	col.x1 = 0;	
@@ -199,9 +199,9 @@ bool Floor::OnFloor( GameObject& rObject )
 }
 
 //Returns the floor height value if the object has just gone through it, -1 otherwise
-float Floor::ThroughFloor( GameObject& rObject, float deltaTicks ) 
+float Floor::ThroughFloor( GameObject& rObject, float dt ) 
 {
-	const CollisionBox obj   = rObject.MyCollisionBox(deltaTicks);
+	const CollisionBox obj   = rObject.MyCollisionBox(dt);
 	const CollisionBox floor = this->MyCollisionBox();
 	
     //The floor is considered as a single line, only its top y value is used

@@ -1,5 +1,5 @@
 //
-//  Scene.h
+//  SceneManager.h
 //  Fever
 //
 //  Created by Arthur Fox on 14/02/2013.
@@ -12,21 +12,21 @@
 #include "Global.h"
 #include "Colour.h"
 
-// Scene class knows how to render different scenes of the game
+// SceneManager class knows how to render different scenes of the game
 // - its the directors' responsibility to tell this class when to render
 
-class Scene
+class SceneManager
 {
 public:
     
-    Scene();
+    SceneManager();
     
-    void UpdateInLevel( float deltaTicks, float fps, int sc, int mult );
+    void UpdateInLevel( float dt, float fps, int sc, int mult );
     void ResetScene();
     
     void RenderInMainMenu( SDL_Surface* pScreen, int option );
-    void RenderInLevel( SDL_Surface* pScreen, Colour* cols ); 
-    void RenderLevelOver( SDL_Surface* pScreen, Colour* cols );
+    void RenderInLevel( SDL_Surface* pScreen); 
+    void RenderLevelOver( SDL_Surface* pScreen);
     
 private:
     
@@ -37,12 +37,10 @@ private:
 	SDL_Surface *m_pFrames, *m_pScore, *m_pMult, *m_pPlayer, *m_pMutedIcon, *m_pFeverText, 
                 *m_pLoadText, *m_pPlayText, *m_pGenText, *m_pGameOverText, *m_pTryAgainText;
     
-    void UpdateLevel(float deltaTicks);
+    void UpdateLevel(float dt);
     void UpdateFrameRate(float fps);
     void UpdateMultiplier(int mult);
     void UpdateScore(int sc);
-    
-    void RenderBackground(SDL_Surface* pScreen, Colour *cols);
 };
 
 #endif

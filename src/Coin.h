@@ -27,12 +27,12 @@ public:
     
     void InitCoinImages();
     
-	void HandleInput( float deltaTicks );
-	bool virtual Update( float deltaTicks ); //Return false if its gameover
+	void HandleInput( float dt );
+	bool virtual Update( float dt ); //Return false if its gameover
 	bool IsVisible();
     inline void SetSpeed( float vel ) {m_xVel = vel;}
     
-	const CollisionBox virtual MyCollisionBox( float deltaTicks = 0 );
+	const CollisionBox virtual MyCollisionBox( float dt = 0 );
     bool TouchCoin( GameObject& rObject );
     
 private:

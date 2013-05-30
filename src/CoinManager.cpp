@@ -41,10 +41,10 @@ void CoinManager::SetSpeed(int s)
 }
 
 
-void CoinManager::Update(float deltaTicks)
+void CoinManager::Update(float dt)
 {	
 	for (m_it=coins.begin(); m_it < coins.end(); m_it++)
-		m_it->Update(deltaTicks);
+		m_it->Update(dt);
     
     if (m_creatingCoins)
     {

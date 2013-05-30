@@ -32,7 +32,7 @@ MenuDirector::MenuDirector( SDL_Surface* pScreen )
     
     m_pScreen = pScreen;
     
-    m_pScene = new Scene();
+    m_pSceneManager = new SceneManager();
     
     m_option = LOAD_LEVEL;
 
@@ -44,7 +44,7 @@ MenuDirector::MenuDirector( SDL_Surface* pScreen )
 
 MenuDirector::~MenuDirector() 
 {
-    delete m_pScene;
+    delete m_pSceneManager;
 }
 
 #pragma mark -
@@ -55,7 +55,7 @@ bool MenuDirector::Run( std::string* pLvlname )
 {
 	bool game = true;
 	
-    m_pScene->RenderInMainMenu( m_pScreen, m_option );
+    m_pSceneManager->RenderInMainMenu( m_pScreen, m_option );
 	
 	SDL_SetEventFilter( MainMenuEventFilter );
 	
@@ -81,7 +81,7 @@ bool MenuDirector::Run( std::string* pLvlname )
             loop = HandleOption();
         }
         
-        m_pScene->RenderInMainMenu( m_pScreen, m_option );     
+        m_pSceneManager->RenderInMainMenu( m_pScreen, m_option );     
 	}
 	
 	SDL_SetEventFilter( NULL );

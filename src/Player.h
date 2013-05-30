@@ -21,12 +21,12 @@ public:
 	Player( Floor* pFloor, float levelSpeed );
     ~Player();
     
-	void HandleInput( float deltaTicks );
-	bool virtual Update( float deltaTicks );
+	void HandleInput( float dt );
+	bool virtual Update( float dt );
     
     bool End( SDL_Surface* pScreen, Camera& rCamera);
 	
-	const CollisionBox virtual MyCollisionBox( float deltaTicks = 0 );
+	const CollisionBox virtual MyCollisionBox( float dt = 0 );
     
 private:
     

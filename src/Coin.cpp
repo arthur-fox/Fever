@@ -51,13 +51,13 @@ void Coin::InitCoinImages()
 }
 
 //Updates the platforms position
-bool Coin::Update( float deltaTicks )
+bool Coin::Update( float dt )
 {
-	m_x -= m_xVel * ( deltaTicks / 1000.f );
+	m_x -= m_xVel * ( dt / 1000.f );
     
     float heightDiff = m_pFloor->GetNextHeight() - m_pFloor->GetHeight();
     
-    m_y += heightDiff/3; // * ( deltaTicks / 1000.f );
+    m_y += heightDiff/3; // * ( dt / 1000.f );
     
 	return true;
 }
@@ -72,7 +72,7 @@ bool Coin::IsVisible()
 #pragma mark CollisionDetection
 
 //Method which creates a collision box for the coin
-const GameObject::CollisionBox Coin::MyCollisionBox( float deltaTicks )
+const GameObject::CollisionBox Coin::MyCollisionBox( float dt )
 {
 	CollisionBox col = CollisionBox();
 	col.x1 = m_x;                       
