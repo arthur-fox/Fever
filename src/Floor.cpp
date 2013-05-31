@@ -13,14 +13,7 @@
 #include <fstream>
 #include <thread>
 
-
-// FIRST AND FOREMOST, THIS CODE IS NOT COMPLICATED...
-//  SO DO NOT PANIC WHEN YOU COME BACK TO IT!
-
 //TODO: 
-// -> Gen level with a real song:
-//  - genLevel asks matlab to analyse music
-//  - call genfloor using values from analysed music!
 //  - Decision needs to be made on whether coins gen'd at runtime or statically
 // -> Tidy up code! Especially genfloor code!
 
@@ -219,6 +212,7 @@ float Floor::ThroughFloor( GameObject& rObject, float dt )
 // TODO: REWRITE THIS FUNCTION TO MAKE IT CLEARER AND MORE CORRECT
 bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
 {
+    float signature, tempo, duration;
     
     std::ifstream ilvlfile;
     ilvlfile.open( LEVEL_TEMP );
@@ -228,13 +222,10 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
         return false;
     }
     
-    //Locals:
-    float signature, tempo, duration;
-    
     ilvlfile >> signature;
     ilvlfile >> tempo;
     ilvlfile >> duration;
-    ilvlfile.close();
+    ilvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
     float coinFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * 60/bpm)*2
@@ -257,7 +248,13 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
 //    olvlfile.close();
     
     // Write FINAL_OUTPUT_FORMAT into the file!
-    std::ofstream olvlfile( lvlpath.c_str(), std::ios::trunc );
+    std::ofstream olvlfile;
+    olvlfile.open( lvlpath.c_str(), std::ios::trunc );
+    if ( !olvlfile.good() )
+    {
+        printf( "Failed to open file: %s\n", lvlpath.c_str() );
+        return false;
+    }
     olvlfile << songpath << std::endl;
     olvlfile << levelSpeed << " " << duration << " " << coinFreq << " " << smoothPointsSize << std::endl;
     for (int i = 0; i < smoothPointsSize; i++)
@@ -265,7 +262,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
         olvlfile << pSmoothPoints[i].GetX() << " " << pSmoothPoints[i].GetY() << " ";
     }
     olvlfile << std::endl;
-    olvlfile.close();
+    olvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
     
     delete pOriginalPoints;
     delete pSmoothPoints;
@@ -357,8 +354,7 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
 
 Point* Floor::GenSmoothPoints(Point* pOriginalPoints, int originalPointsSize, int* smoothPointsSize)
 {
-    // CHECK!
-    //? What should the exact size be? Does it matter? Is this leading to crashes?
+    // CHECK: What should the exact size be?
     Point* pSmoothPoints = new Point[originalPointsSize*originalPointsSize];
     
     //    // The following code uses cosine approximations to make the hills smooth

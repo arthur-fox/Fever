@@ -14,12 +14,13 @@ const int MIN_RGB = 0;
 
 Colour::Colour()
 {
-    m_r = m_g = m_b = 0;
+    m_r = m_g = m_b = m_a = MIN_RGB;
 }
 
 Colour::Colour( int rgb )
 {
     m_r = m_g = m_b = rgb;
+    m_a = MAX_RGB;
 }
 
 Colour::Colour( int r, int g, int b )
@@ -27,6 +28,36 @@ Colour::Colour( int r, int g, int b )
     m_r = r;
     m_g = g;
     m_b = b;
+    m_a = MAX_RGB;
+}
+
+Colour::Colour( int r, int g, int b, int a )
+{
+    m_r = r;
+    m_g = g;
+    m_b = b;
+    m_a = a;
+}
+
+int Colour::Get(int colour) const
+{
+    switch ( colour )
+    {
+        case COLOUR_RED:
+            return m_r;
+            
+        case COLOUR_GREEN:
+            return m_g;
+            
+        case COLOUR_BLUE:
+            return m_b;
+            
+        case COLOUR_ALPHA:
+            return m_a;
+            
+        default:
+            return -1;
+    }
 }
 
 bool operator>= (const Colour& lhs, const int& val)
@@ -53,22 +84,23 @@ bool operator<= (const Colour& lhs, const Colour& rhs)
     //return (r+g+b)/3 < (c.getR()+c.getG()+c.getB())/3;
 }
 
-int Colour::Get(int colour) const
+
+Colour& Colour::operator+=(const int& rhs)
 {
-    switch ( colour )
-    {
-        case COLOUR_RED:
-            return m_r;
-            
-        case COLOUR_GREEN:
-            return m_g;
-            
-        case COLOUR_BLUE:
-            return m_b;
-            
-        default:
-            return -1;
-    }
+    m_r += rhs;
+    m_g += rhs;
+    m_b += rhs;
+    m_a -= rhs;
+    return *this;
+}
+
+Colour& Colour::operator-=(const int& rhs)
+{
+    m_r -= rhs;
+    m_g -= rhs;
+    m_b -= rhs;
+    m_a -= rhs;
+    return *this;
 }
 
 //NOTE: Might make sense to give functions other than
@@ -87,6 +119,10 @@ void Colour::Inc(int colour)
             
         case COLOUR_BLUE:
             m_b = std::min(m_b+1,MAX_RGB);
+            break;
+            
+        case COLOUR_ALPHA:
+            m_a = std::min(m_a+1,MAX_RGB);
             break;
             
         default:
@@ -111,6 +147,10 @@ void Colour::Dec(int colour)
             
         case COLOUR_BLUE:
             m_b = std::max(m_b-1,MIN_RGB);
+            break;
+            
+        case COLOUR_ALPHA:
+            m_a = std::max(m_a-1,MIN_RGB);
             break;
             
         default:

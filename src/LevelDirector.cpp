@@ -74,6 +74,7 @@ bool LevelDirector::Run()
     
     CoinManager coins = CoinManager( m_levelSpeed, m_coinFreq, SCREEN_WIDTH, floor.GetLastHeight(), &floor );
     ColourManager colours = ColourManager(m_levelSpeed);
+    EffectsManager effects = EffectsManager(m_levelSpeed);
     
 	/** LOOP **/
     
@@ -127,7 +128,7 @@ bool LevelDirector::Run()
 		
 		/***** LOGIC *******/
         
-        if ( !Update(camera, player, floor, coins, colours, delta.GetTicks(), dtAccumulator) )
+        if ( !Update(camera, player, floor, coins, colours, effects, delta.GetTicks(), dtAccumulator) )
         {
             playing = false;
             break;
@@ -149,7 +150,7 @@ bool LevelDirector::Run()
 		delta.Start(); 
         
 		/****** RENDERING *******/
-        Render(camera, player, floor, coins, colours);
+        Render(camera, player, floor, coins, colours, effects);
 		
 		/***** HOUSEKEEPING *****/
 		//If we need to cap the frame rate sleep the remaining frame time 
@@ -163,6 +164,7 @@ bool LevelDirector::Run()
         
 		if ( ++framesPassed >= FRAMES_PER_SECOND )
 		{
+            
 //            //DEBUG
 //            std::cout << (int)(song.GetTicks()/1000) << std::endl;
             
@@ -187,13 +189,13 @@ void LevelDirector::OncePerSecond( float delay, CoinManager& rCoins )
 #pragma mark Update
 
 //Updates game logic with a fixed-time step, returns false if its GAMEOVER
-bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, int dt, float& dtAccumulator)
+bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects,  int dt, float& dtAccumulator)
 {
     bool result = true;
     
     if (VARIABLE_TIME_STEP) //VARIABLE_TIME_STEP: More dangerous but does not skip frames hence more accurate
     {
-        result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, dt);
+        result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, rEffects, dt);
     }
     else  //FIXED_TIME_STEP: Safer but skips frames! Hence innacurate.
     {
@@ -201,7 +203,7 @@ bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, Coin
         int updates = 0;
         for (; (dt >= FIXED_TIME_STEP) && (updates < LIMIT_UPDATES) && result; dt -= FIXED_TIME_STEP, updates++)
         {
-            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, FIXED_TIME_STEP);
+            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, rEffects, FIXED_TIME_STEP);
         }
         //Accumulate remaining ticks left between frames so we don't "play catch up" in the next few frames
         dtAccumulator += dt;
@@ -209,7 +211,7 @@ bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, Coin
         //Once this has accumulated past a FIXED_TIME_STEP, then update the game logic once again
         while ( dtAccumulator >= FIXED_TIME_STEP && result )
         {
-            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, FIXED_TIME_STEP);
+            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, rEffects, FIXED_TIME_STEP);
             dtAccumulator -= FIXED_TIME_STEP;
         }
     }
@@ -218,7 +220,7 @@ bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, Coin
 }
 
 // Calls update on player, floor and coins
-bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, float dt )
+bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects, float dt )
 {
     bool result = true;
     
@@ -234,38 +236,47 @@ bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, 
     
     rCamera.Update( dt, Point(rPlayer.GetX(), rPlayer.GetY()) );
     
-    rColours.Update( dt );
+    UpdateScore( rPlayer, rCoins, rEffects );
     
-    UpdateScore( rPlayer, rCoins ); 
+    rEffects.Update( dt );
+    
+    if (!rEffects.IsPlayingFlash())
+        rColours.Update( dt );
     
     return result;
 }
 
-void LevelDirector::UpdateScore(Player& rPlayer, CoinManager& rCoins)
-{
+void LevelDirector::UpdateScore(Player& rPlayer, CoinManager& rCoins, EffectsManager& rEffects)
+{   
     int coin = rCoins.TouchCoin(rPlayer);
     if( coin >= 0 )
     {
         m_score += m_mult;
         rCoins.Remove(coin);
+        rEffects.ResetPlayedFlash();
     }
     
     m_mult = (rCoins.GetTouched()/MULTIPLIER_COINS_NEEDED +1);
     
-    //    if( rCoins.getTouched()%MULTIPLIER_COINS_NEEDED == 0)
-    //  DO SOMETHING PRETTY ONSCREEN
-    //  PROBABLY WITH EffectsManager
+    //CHECK: Could keep playing screen flash over and over if coins do not change.
+    if( rCoins.GetTouched()%MULTIPLIER_COINS_NEEDED == 0 && !rEffects.HasPlayedFlash() && m_mult != 1)
+    {
+        rEffects.PlayScreenFlash();
+    }
 }
 
 #pragma mark -
 #pragma mark Render
 
 //Renders all the assets as necessary, currently return value is just ignored
-bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours )
+bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects )
 {
     bool result = true;
     
-    rColours.Render( m_pScreen );
+    if (!rEffects.IsPlayingFlash())
+        rColours.Render( m_pScreen );
+    
+    rEffects.Render( m_pScreen );
     
     m_pSceneManager->RenderInLevel( m_pScreen );
     

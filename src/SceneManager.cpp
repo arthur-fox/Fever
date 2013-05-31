@@ -26,7 +26,7 @@ SceneManager::SceneManager()
 		exit(1);
 	}
     
-	m_pFeverText = TTF_RenderText_Blended( m_pGlobal->GetFont( TITLE_FONT ), "FEVER", m_pGlobal->GetColor( WHITE_COLOUR ) );
+	m_pFeverText = TTF_RenderText_Blended( m_pGlobal->GetFont( TITLE_FONT ), GAME_NAME, m_pGlobal->GetColor( WHITE_COLOUR ) );
 	if( m_pFeverText == NULL ){
 		printf("Could not render climber text: %s\n", TTF_GetError());
 		exit(1);

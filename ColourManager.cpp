@@ -23,7 +23,7 @@ ColourManager::ColourManager(float levelSpeed)
     m_levelSpeed = levelSpeed/ SPEED_DAMPENING;
     m_necessaryUpChanges = UP_CHANGE_FACTOR / levelSpeed;
     
-    m_colours = new Colour[SCREEN_WIDTH];
+    m_pColours = new Colour[SCREEN_WIDTH];
     m_currColour = Colour(INIT_COLOUR);
     m_primaryUp = m_secondaryUp = true;
     m_dtColour = 0;
@@ -48,7 +48,7 @@ ColourManager::ColourManager(float levelSpeed)
 
 ColourManager::~ColourManager()
 {
-    delete m_colours;
+    delete m_pColours;
 }
 
 //NOTE: This algorithm is very hacky/messy
@@ -65,37 +65,39 @@ bool ColourManager::Update( float dt )
         if (i % COLOUR_BAND_WIDTH == 0)
             UpdateColour(tempCol, tempUp, COLOUR_ALL);
         
-        m_colours[i] = tempCol;
+        m_pColours[i] = tempCol;
     }
     
     // Set colour, channel and both up variables correctly for next loop
     m_dtColour += (m_levelSpeed * dt/1000.f);
     if (m_dtColour > 2) //Gurantees we don't screw the UP variables
     {
+        //Updating Primary vars
         int next_colour = m_dtColour*COLOUR_BAND_WIDTH;
-        bool newPrimaryUp = m_primaryUp;
-        
-        if ( m_currColour <= m_colours[next_colour] )
+        if ( m_currColour <= m_pColours[next_colour] )
         {
-            newPrimaryUp = true;
+            m_primaryUp = true;
         }
         else
         {
-            newPrimaryUp = false;
+            m_primaryUp = false;
         }
-
-        if (newPrimaryUp != m_primaryUp)
+        
+        m_dtColour = 0;
+        m_currColour = m_pColours[next_colour];
+        
+        
+        //Updating Secondary vars
+        bool newSecondaryUp = m_secondaryUp;
+        UpdateColour(m_currColour, newSecondaryUp, m_currChannel);
+        
+        if (newSecondaryUp != m_secondaryUp)
         {
             m_numUpChanged++;
             UpdateChannel(m_currChannel);
         }
         
-        m_dtColour = 0;
-        m_primaryUp = newPrimaryUp;
-        m_currColour = m_colours[next_colour];
-        
-        
-        UpdateColour(m_currColour, m_secondaryUp, m_currChannel);
+        m_secondaryUp = newSecondaryUp;
     }
     
     return true;
@@ -112,7 +114,7 @@ void ColourManager::UpdateColour( Colour &rColour, bool &rUp, int col )
         {
             rUp = false;
         }
-        else if (rColour <= LOWER_COLOUR )
+        else if (rColour <= LOWER_COLOUR)
         {
             rUp = true;
         }
@@ -152,15 +154,16 @@ void ColourManager::Render( SDL_Surface* pScreen )
     // Save pixel values for background scanline
     for (int i = 0; i <  SCREEN_WIDTH; i++)
     {
-        scanline[i] = SDL_MapRGB( pScreen->format, m_colours[i].GetR(), m_colours[i].GetG(), m_colours[i].GetB() );
+        scanline[i] = SDL_MapRGB( pScreen->format, m_pColours[i].GetR(), m_pColours[i].GetG(), m_pColours[i].GetB());
     }
     
     // Manually copy background pixel data over!
+    int pixelSize = sizeof(Uint32);
     SDL_LockSurface(pScreen);
     Uint32* pPixelData = static_cast<Uint32*> (pScreen->pixels);
     for (int j = 0; j < SCREEN_HEIGHT; j++)
     {
-        memcpy(pPixelData+j*SCREEN_WIDTH, scanline, SCREEN_WIDTH*4);
+        memcpy(pPixelData+j*SCREEN_WIDTH, scanline, SCREEN_WIDTH*pixelSize);
     }
     SDL_UnlockSurface(pScreen);
 }

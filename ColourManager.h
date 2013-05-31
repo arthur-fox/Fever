@@ -28,7 +28,7 @@ private:
     
     float m_levelSpeed;
     
-    Colour* m_colours; // MAKE INTO VECTOR??
+    Colour* m_pColours; // MAKE INTO VECTOR??
     Colour m_currColour;
     bool m_primaryUp, m_secondaryUp; //Primary up impacts All channels, Secondary up impacts m_currChannel
     float m_dtColour;

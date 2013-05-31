@@ -16,7 +16,7 @@
 GameDirector::GameDirector()
 {
     //Initialise the screen 
-	SDL_WM_SetCaption( "Fever", NULL );
+	SDL_WM_SetCaption(GAME_NAME, NULL );
 	m_pScreen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );
 	if ( m_pScreen == NULL ) {
 		printf( "Could not set 640x480x%d video mode: %s\n", SCREEN_BPP, SDL_GetError() );

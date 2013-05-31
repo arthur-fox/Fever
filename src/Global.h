@@ -21,6 +21,8 @@
 #include "engine.h"
 #include "Path.h"
 
+#define GAME_NAME               "FEVER"
+
 #define RESOURCE_PATH           "Fever.app/Contents/Resources/"
 #define RESOURCE_TITLE_FONT     "ldmusic.ttf"
 #define RESOURCE_FONT           "Insignia.otf"

@@ -14,6 +14,7 @@
 #include "CoinManager.h"
 #include "SceneManager.h"
 #include "ColourManager.h"
+#include "EffectsManager.h"
 #include "Floor.h"
 #include "Timer.h"
 #include "Colour.h"
@@ -77,16 +78,11 @@ private:
     
     void OncePerSecond(float delay, CoinManager& rCoin);
     
-    bool Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, int dt, float& dtAccumulator);
-    bool UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, float dt);
-    void UpdateScore(Player& rPlayer, CoinManager& rCoins);
-    
-    //    bool UpdateColours(Colour &col, Colour* pCols, bool &up, int dt = 0);
-    //    void UpdateCol(Colour &col, bool &up);
-
-    
-    bool Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours);
-    
+    bool Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects, int dt, float& dtAccumulator);
+    bool UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects, float dt);
+    void UpdateScore(Player& rPlayer, CoinManager& rCoins, EffectsManager& rEffects);
+ 
+    bool Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects);
     bool EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, ColourManager& rColours);
     
     void PauseGame(bool& game, bool& playing);
