@@ -11,11 +11,10 @@
 #include "SDL_gfxBlitFunc.h"
 #include "EffectsManager.h"
 
-//FIX: This should be a variable!
-const int EFFECTS_ALPHA = 150;
-const int EFFECT_DAMPENING_FACTOR = 2;//2*LEVEL_SPEED_FACTOR;
+const int EFFECT_DURATION = 100; // SMALLER -> LONGER
+//const int EFFECT_DAMPENING_FACTOR = 2;//2*LEVEL_SPEED_FACTOR;
 const int FLASH_MAX = 255;
-const int FLASH_MIN = 150;
+const int FLASH_MIN = 200;
 
 EffectsManager::EffectsManager(float levelSpeed)
 {
@@ -34,7 +33,7 @@ bool EffectsManager::Update( float dt )
 {
     if (m_animFlash)
     {
-        m_flashColour -= (m_levelSpeed/EFFECT_DAMPENING_FACTOR * dt/1000.f);
+        m_flashColour -= (EFFECT_DURATION * dt/1000.f); // m_levelSpeed/EFFECT_DAMPENING_FACTOR * dt/1000.f
         
         if (m_flashColour <= FLASH_MIN)
         {
