@@ -13,30 +13,30 @@
 #include "Global.h"
 #include "Colour.h"
 
-// Defines colour boundaries
-const int UPPER_COLOUR = 220;
-const int LOWER_COLOUR = 35;
-const int COLOUR_BAND_WIDTH = 5;    // DECREASE makes variation in background colour LARGER
-
 //ColourManager class takes care of updating the background colour values in a level
 class ColourManager
 {
 public:
     
     ColourManager(float levelSpeed);
+    ~ColourManager();
     
     bool Update( float dt );
-    void UpdateCol( Colour &rCol, bool &rUp );
     void Render( SDL_Surface* pScreen );
     
 private:
     
-    Global* m_pGlobal;
-    
-    Colour m_cols[SCREEN_WIDTH]; // MAKE INTO VECTOR??
-    Colour m_col;
-    bool m_up;
     float m_levelSpeed;
+    
+    Colour* m_colours; // MAKE INTO VECTOR??
+    Colour m_currColour;
+    bool m_primaryUp, m_secondaryUp; //Primary up impacts All channels, Secondary up impacts m_currChannel
+    float m_dtColour;
+    int m_numUpChanged, m_necessaryUpChanges, m_currChannel;
+    bool m_availableChannels[NUM_COLOUR_CHANNELS];
+    
+    void UpdateColour( Colour &rColour, bool &rUp, int col );
+    void UpdateChannel(int &currChannel);
 };
 
 #endif /* defined(__Fever__ColourManager__) */

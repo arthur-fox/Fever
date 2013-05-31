@@ -9,6 +9,12 @@
 #ifndef Fever_Colour_h
 #define Fever_Colour_h
 
+const int COLOUR_RED = 0;
+const int COLOUR_GREEN = 1;
+const int COLOUR_BLUE = 2;
+const int COLOUR_ALL = 3;
+const int NUM_COLOUR_CHANNELS = 3;
+
 class Colour
 {
 public:
@@ -16,23 +22,25 @@ public:
     Colour();
     Colour( int rgb );
     Colour( int r, int g, int b );
+
+    //NOTE: These operators have been defined Weirdly
+    //      They are currently VERY Specific to this application!
+    friend bool operator>= (const Colour& lhs, const int& val   );
+    friend bool operator<= (const Colour& lhs, const int& val   );
+    friend bool operator>= (const Colour& lhs, const Colour& rhs);
+    friend bool operator<= (const Colour& lhs, const Colour& rhs);
     
-    //NOTE: Maybe these should be overloade operators?
-    //      all comparisons are actually >= and <= not >, <
-    void Inc();
-    void Dec();
-    bool GreaterThan( int val ) const;
-    bool LessThan( int val ) const;
-    bool GreaterThan( Colour &c ) const;
-    bool LessThan( Colour &c ) const;
+    void Inc(int colour);
+    void Dec(int colour);
     
     inline int GetR() const {return m_r;}
     inline int GetG() const {return m_g;}
     inline int GetB() const {return m_b;}
+    int Get(int colour) const;
     
 private:
     
-    int m_r, m_g, m_b; //alpha too?
+    int m_r, m_g, m_b;
 };
 
 #endif

@@ -163,8 +163,8 @@ bool LevelDirector::Run()
         
 		if ( ++framesPassed >= FRAMES_PER_SECOND )
 		{
-            //DEBUG
-            std::cout << (int)(song.GetTicks()/1000) << std::endl;
+//            //DEBUG
+//            std::cout << (int)(song.GetTicks()/1000) << std::endl;
             
 			OncePerSecond( delay, coins );
 			framesPassed = delay = 0;
