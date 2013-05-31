@@ -24,25 +24,10 @@ EffectsManager::EffectsManager(float levelSpeed)
     m_dtAccum = 0;
     m_animFlash = false;
     m_flashColour = Colour();
-    
-    
-//#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-//    m_pEffectsScreen = SDL_CreateRGBSurface(SDL_HWSURFACE,SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_BPP, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-//#else
-//    m_pEffectsScreen = SDL_CreateRGBSurface(SDL_HWSURFACE,SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_BPP, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-//#endif
-//    SDL_SetAlpha( m_pEffectsScreen, 0, SDL_ALPHA_OPAQUE );
-//    m_pEffectsScreen = SDL_CreateRGBSurface(SDL_SWSURFACE, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0, 0, 0);
-//	if ( m_pEffectsScreen == NULL ) {
-//		printf( "Effects Manager could init screen: %s\n", SDL_GetError() );
-//		SDL_Quit();
-//		exit(1);
-//	}
 }
 
 EffectsManager::~EffectsManager()
 {
-    SDL_FreeSurface(m_pEffectsScreen);
 }
 
 bool EffectsManager::Update( float dt )
@@ -75,27 +60,5 @@ void EffectsManager::Render( SDL_Surface* pScreen )
     if (m_animFlash)
     {   
         SDL_FillRect(pScreen, NULL, SDL_MapRGBA( pScreen->format, m_flashColour.GetR(), m_flashColour.GetG(), m_flashColour.GetB(), 0));//m_flashColour.GetA()));
-
-//        SDL_gfxBlitRGBA(m_pEffectsScreen, NULL, pScreen, NULL);
-        
-//        boxRGBA(pScreen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, m_flashColour.GetR(), m_flashColour.GetG(), m_flashColour.GetB(), m_flashColour.GetA());
-        
-//        Global::SharedGlobal()->ApplySurface( 0, 0, m_pEffectsScreen, pScreen );
-        
-        
-//        Uint32 pixels[SCREEN_WIDTH*SCREEN_HEIGHT];
-//        
-//        // Save pixel values for background
-//        for (int i = 0; i <  SCREEN_WIDTH*SCREEN_HEIGHT; i++)
-//        {
-//            pixels[i] = SDL_MapRGBA( pScreen->format, m_pColours[i].GetR(), m_pColours[i].GetG(), m_pColours[i].GetB(), m_pColours[i].GetA());
-//        }
-//        
-//        // Manually copy background pixel data over!
-//        int pixelSize = sizeof(Uint32);
-//        SDL_LockSurface(pScreen);
-//        Uint32* pPixelData = static_cast<Uint32*> (pScreen->pixels);
-//        memcpy(pPixelData, pixels, SCREEN_WIDTH*SCREEN_HEIGHT*pixelSize);
-//        SDL_UnlockSurface(pScreen);
     }
 }

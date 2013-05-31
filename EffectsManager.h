@@ -37,8 +37,6 @@ private:
     bool m_animFlash;
     bool m_playedFlash;
     Colour m_flashColour;
-    
-//    SDL_Surface* m_pEffectsScreen;
 };
 
 #endif /* defined(__Fever__EffectsManager__) */
