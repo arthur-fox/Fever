@@ -67,7 +67,7 @@ private:
 	float m_fps;
     int m_score, m_mult;
     
-    float m_levelSpeed, m_songDuration, m_noteFreq;
+    float m_signature, m_levelSpeed, m_songDuration, m_noteFreq;
     std::string m_filepath;
     std::string m_songpath;
     

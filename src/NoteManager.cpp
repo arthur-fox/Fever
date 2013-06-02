@@ -13,7 +13,7 @@
 NoteManager::NoteManager(float speed, float freq, int width, int height, Floor* pFloor)
 {
 	m_speed = speed;   //int
-    m_noteFreq = freq; //always 180?
+    m_noteFreq = freq; //always 180*2?
     m_width = width;
     m_height = height;
     m_pFloor = pFloor;

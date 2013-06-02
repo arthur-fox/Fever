@@ -42,12 +42,15 @@ LevelDirector::LevelDirector(const std::string &pFilepath, SDL_Surface* pScreen)
     
     std::ifstream lvlfile;
     lvlfile.open( m_filepath.c_str() );
-    
+
     lvlfile >> m_songpath;
+    lvlfile >> m_signature;
     lvlfile >> m_levelSpeed;    
     lvlfile >> m_songDuration;
     lvlfile >> m_noteFreq;
     m_songDuration *= 1000; // Convert to milliseconds
+    
+    srand(m_signature);
 }
 
 LevelDirector::~LevelDirector()

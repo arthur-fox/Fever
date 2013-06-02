@@ -44,9 +44,10 @@ void Floor::SetFloorPoints()
     std::ifstream lvlfile;
     lvlfile.open( m_filename.c_str() );
     std::string songpath;
-    float songDuration, noteFreq;
+    float signature, songDuration, noteFreq;
     
     lvlfile >> songpath;
+    lvlfile >> signature;
     lvlfile >> m_levelSpeed;
     lvlfile >> songDuration;
     lvlfile >> noteFreq; 
@@ -258,7 +259,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
         return false;
     }
     olvlfile << songpath << std::endl;
-    olvlfile << levelSpeed << " " << duration << " " << noteFreq << " " << smoothPointsSize << std::endl;
+    olvlfile << signature << " " << levelSpeed << " " << duration << " " << noteFreq << " " << smoothPointsSize << std::endl;
     for (int i = 0; i < smoothPointsSize; i++)
     {
         olvlfile << pSmoothPoints[i].GetX() << " " << pSmoothPoints[i].GetY() << " ";
