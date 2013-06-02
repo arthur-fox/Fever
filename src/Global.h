@@ -72,6 +72,7 @@ const int DEFAULT_VOLUME = 128;
 const int PAUSE_VOLUME = 30; // IS THIS NEEDED?
 
 //Font attributes
+const int TINY_FONT = 0;
 const int SMALL_FONT = 1;
 const int MEDIUM_FONT = 2;
 const int LARGE_FONT = 3;
@@ -144,7 +145,7 @@ private:
     
     //Private Variables
     Engine *m_pMateng;
-    TTF_Font  *m_pSmallFont, *m_pMediumFont, *m_pLargeFont, *m_pTitleFont;
+    TTF_Font  *m_pTinyFont, *m_pSmallFont, *m_pMediumFont, *m_pLargeFont, *m_pTitleFont;
     SDL_Color m_whiteColour;
     bool m_muted;
     

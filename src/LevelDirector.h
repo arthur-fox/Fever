@@ -84,6 +84,7 @@ private:
  
     bool Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, NoteManager& rNotes, ColourManager& rColours, EffectsManager& rEffects);
     bool EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, ColourManager& rColours);
+    void UpdateHighScores();
     
     void PauseGame(bool& game, bool& playing);
 };

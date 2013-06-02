@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include <map>
 
 Global* LevelDirector::ms_pGlobal(0);
 
@@ -164,7 +165,6 @@ bool LevelDirector::Run()
         
 		if ( ++framesPassed >= FRAMES_PER_SECOND )
 		{
-            
 //            //DEBUG
 //            std::cout << (int)(song.GetTicks()/1000) << std::endl;
             
@@ -360,6 +360,8 @@ bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor,
         SDL_Delay( ( 1000 / (3*FRAMES_PER_SECOND) ));
     }
     
+    UpdateHighScores();
+    
     std::this_thread::sleep_for( std::chrono::seconds(1) );
     
 	SDL_SetEventFilter( EndEventFilter );
@@ -375,10 +377,57 @@ bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor,
 
 int LevelDirector::EndEventFilter( const SDL_Event *pEvent )
 {
-	if( (pEvent->type == SDL_KEYDOWN) || pEvent->type == SDL_QUIT)
+	if ( (pEvent->type == SDL_KEYDOWN) || pEvent->type == SDL_QUIT)
 		return 1;
     
 	return 0;
+}
+
+void LevelDirector::UpdateHighScores()
+{
+    /* Save high scores into a map */
+    std::map<std::string,int> scores;
+    
+    std::ifstream inHighScores;
+    inHighScores.open( LEVEL_SCORES );
+    
+    std::string level;
+    int score = 0;
+    
+    inHighScores.seekg(0, inHighScores.end);
+    int length = (int) inHighScores.tellg();
+    inHighScores.seekg(0, inHighScores.beg);
+    
+    while ( inHighScores.tellg() != length )
+    {
+        std::getline(inHighScores, level, '\t');
+        inHighScores >> score;
+        scores.insert( std::pair<std::string,int>(level,score) );
+        
+        //Skip out the rest of the line
+        std::getline(inHighScores, level, '\n');
+    }
+    inHighScores.close();
+    
+    /* Update score */
+    std::string songName = Path::NameFromPath(m_filepath);
+    if ( scores.find(songName) == scores.end() )
+    {
+        scores.insert( std::pair<std::string,int>(songName,m_score) );
+    }
+    else if ( scores.at(songName) < m_score )
+    {
+        scores.at(songName) = m_score;
+    }
+    
+    /* Store high scores back into the file */
+    std::ofstream outHighScores;
+    outHighScores.open( LEVEL_SCORES, std::ios::trunc );
+    for (std::map<std::string,int>::iterator it=scores.begin(); it!=scores.end(); ++it)
+    {
+        outHighScores << it->first << "\t\t" << it->second << "\n";
+    }
+    outHighScores.close();
 }
 
 #pragma mark -

@@ -36,7 +36,8 @@ private:
     //The offsets of the background 
     float m_bgX, m_bgY;
 	SDL_Surface *m_pFrames, *m_pScore, *m_pMult, *m_pPlayer, *m_pMutedIcon, *m_pFeverText, 
-                *m_pLoadText, *m_pPlayText, *m_pGenText, *m_pScoreText, *m_pGameOverText, *m_pTryAgainText;
+                *m_pLoadText, *m_pPlayText, *m_pGenText, *m_pHighScoreText, *m_pGameOverText,
+                *m_pTryAgainText, *m_pTempText;
     
     void UpdateLevel(float dt);
     void UpdateFrameRate(float fps);

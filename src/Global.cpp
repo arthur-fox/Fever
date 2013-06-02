@@ -94,6 +94,7 @@ void Global::InitFontsColors()
     std::string font = ms_pPath->PathForFile( RESOURCE_TITLE_FONT );
     m_pTitleFont  = TTF_OpenFont( font.c_str(), 220 );
     font = ms_pPath->PathForFile( RESOURCE_FONT );
+    m_pTinyFont   = TTF_OpenFont( font.c_str(), 28 );
     m_pSmallFont  = TTF_OpenFont( font.c_str(), 36 );
     m_pMediumFont = TTF_OpenFont( font.c_str(), 56 );
     m_pLargeFont  = TTF_OpenFont( font.c_str(), 112 );
@@ -118,6 +119,10 @@ TTF_Font* Global::GetFont( int font ) const
 {
     switch ( font ) 
     {
+        case TINY_FONT:
+            return m_pTinyFont;
+            break;
+            
         case SMALL_FONT:
             return m_pSmallFont;
             break;

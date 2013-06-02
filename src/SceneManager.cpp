@@ -7,9 +7,11 @@
 //
 
 #include "SceneManager.h"
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <map>
 
 //initialise platform array and speed
 SceneManager::SceneManager()
@@ -50,8 +52,8 @@ SceneManager::SceneManager()
 		exit(1);
 	};
     
-    m_pScoreText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), "High Scores", m_pGlobal->GetColor( WHITE_COLOUR ) );
-	if( m_pScoreText == NULL ){
+    m_pHighScoreText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), "High Scores", m_pGlobal->GetColor( WHITE_COLOUR ) );
+	if( m_pHighScoreText == NULL ){
 		printf("Could not render generate text: %s\n", TTF_GetError());
 		exit(1);
 	};
@@ -83,6 +85,12 @@ SceneManager::SceneManager()
 	m_pMutedIcon = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), "M" , m_pGlobal->GetColor( WHITE_COLOUR ) );
 	if( m_pMutedIcon == NULL ){
 		printf( "Could not render mutedIcon: %s\n", TTF_GetError() );
+		exit(1);
+	}
+    
+    m_pTempText = TTF_RenderText_Blended( m_pGlobal->GetFont( TINY_FONT ), "EMPTY" , m_pGlobal->GetColor( WHITE_COLOUR ) );
+	if( m_pTempText == NULL ){
+		printf( "Could not render temp text: %s\n", TTF_GetError() );
 		exit(1);
 	}
     
@@ -153,13 +161,13 @@ void SceneManager::RenderInMainMenu( SDL_Surface* pScreen, int option )
     Uint32 menuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
     SDL_FillRect( pScreen, NULL , menuColour );
 	
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFeverText->w)/2, (SCREEN_HEIGHT - m_pFeverText->h)/2 - 100, m_pFeverText, pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pLoadText->w)/2,  (SCREEN_HEIGHT - m_pLoadText->h )/2 + 50,  m_pLoadText,  pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPlayText->w)/2,  (SCREEN_HEIGHT - m_pPlayText->h )/2 + 100, m_pPlayText,  pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pGenText->w)/2,   (SCREEN_HEIGHT - m_pGenText->h  )/2 + 150, m_pGenText,   pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScoreText->w)/2, (SCREEN_HEIGHT - m_pScoreText->h)/2 + 200, m_pScoreText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFeverText->w)/2,    (SCREEN_HEIGHT - m_pFeverText->h)/2 - 100,  m_pFeverText,   pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pLoadText->w)/2,     (SCREEN_HEIGHT - m_pLoadText->h )/2 + 50,   m_pLoadText,    pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPlayText->w)/2,     (SCREEN_HEIGHT - m_pPlayText->h )/2 + 100,  m_pPlayText,    pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pGenText->w)/2,      (SCREEN_HEIGHT - m_pGenText->h  )/2 + 150,  m_pGenText,     pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pHighScoreText->w)/2,(SCREEN_HEIGHT - m_pHighScoreText->h)/2+200,m_pHighScoreText,pScreen);
     
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScoreText->w)/2 - 120, (SCREEN_HEIGHT - m_pPlayer->h)/2 + (50*(option+1)), m_pPlayer, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pHighScoreText->w)/2 - 120, (SCREEN_HEIGHT - m_pPlayer->h)/2 + (50*(option+1)), m_pPlayer, pScreen );
 	
     if( SDL_Flip( pScreen ) == -1 )
 		exit(1);
@@ -186,9 +194,27 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen )
     Uint32 scoresColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
     SDL_FillRect( pScreen, NULL , scoresColour );
     
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScoreText->w)/2, m_pScoreText->h, m_pScoreText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pHighScoreText->w)/2, m_pHighScoreText->h, m_pHighScoreText, pScreen );
     
+    std::ifstream scoresFile;
+    scoresFile.open( LEVEL_SCORES );
     
+    scoresFile.seekg(0, scoresFile.end);
+    int length = (int) scoresFile.tellg();
+    scoresFile.seekg(0, scoresFile.beg);
+    
+    int textPos = 2.5 * m_pHighScoreText->h;
+    while ( scoresFile.tellg() != length && textPos < SCREEN_HEIGHT )
+    {
+        std::string levelAndScore;
+        std::getline(scoresFile, levelAndScore);
+        
+        SDL_FreeSurface( m_pTempText );
+        m_pTempText = TTF_RenderText_Blended( m_pGlobal->GetFont( TINY_FONT ), levelAndScore.c_str(), m_pGlobal->GetColor( WHITE_COLOUR ) );
+        m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pTempText->w)/2, textPos, m_pTempText, pScreen );
+        
+        textPos += m_pTempText->h;
+    }
     
     if( SDL_Flip( pScreen ) == -1 )
 		exit(1);
@@ -196,7 +222,10 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen )
 
 
 void SceneManager::RenderLevelOver( SDL_Surface* pScreen )
-{   
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pGameOverText->w)/2, (SCREEN_HEIGHT - m_pGameOverText->h)/2 - 50, m_pGameOverText, pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, (SCREEN_HEIGHT - m_pScore->h)/2 + 10, m_pScore, pScreen );
+{
+    //TODO:
+    // show previous high score?
+    
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pGameOverText->w)/2, (SCREEN_HEIGHT - m_pGameOverText->h)/2 - 110, m_pGameOverText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, (SCREEN_HEIGHT - m_pScore->h)/2 - 50, m_pScore, pScreen );
 }

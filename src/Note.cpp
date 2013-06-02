@@ -15,7 +15,7 @@ SDL_Surface *Note::ms_pNoteImg2(0);
 SDL_Surface *Note::ms_pNoteImg3(0);
 SDL_Surface *Note::ms_pClefImg(0);
 
-const int TYPES_OF_NOTES = 3; // Ignoring Clef
+const int TYPES_OF_NOTES = 3; // 3 - Ignoring Clef
 
 #pragma mark -
 #pragma mark CoinFunctions
