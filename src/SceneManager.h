@@ -25,7 +25,8 @@ public:
     void ResetScene();
     
     void RenderInMainMenu( SDL_Surface* pScreen, int option );
-    void RenderInLevel( SDL_Surface* pScreen); 
+    void RenderInLevel( SDL_Surface* pScreen);
+    void RenderInScores( SDL_Surface* pScreen);
     void RenderLevelOver( SDL_Surface* pScreen);
     
 private:
@@ -35,7 +36,7 @@ private:
     //The offsets of the background 
     float m_bgX, m_bgY;
 	SDL_Surface *m_pFrames, *m_pScore, *m_pMult, *m_pPlayer, *m_pMutedIcon, *m_pFeverText, 
-                *m_pLoadText, *m_pPlayText, *m_pGenText, *m_pGameOverText, *m_pTryAgainText;
+                *m_pLoadText, *m_pPlayText, *m_pGenText, *m_pScoreText, *m_pGameOverText, *m_pTryAgainText;
     
     void UpdateLevel(float dt);
     void UpdateFrameRate(float fps);

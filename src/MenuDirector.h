@@ -36,6 +36,7 @@ private:
     SDL_Event m_event;
 	SDL_Surface* m_pScreen;
     int m_option;
+    bool m_displayScores;
     std::string m_loadedLevel;
     
     
@@ -45,6 +46,7 @@ private:
     bool LoadLevel();
     bool PlayLevel();
     bool GenLevel();
+    bool HighScores();
 };
 
 #endif

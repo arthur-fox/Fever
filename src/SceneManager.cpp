@@ -50,6 +50,12 @@ SceneManager::SceneManager()
 		exit(1);
 	};
     
+    m_pScoreText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), "High Scores", m_pGlobal->GetColor( WHITE_COLOUR ) );
+	if( m_pScoreText == NULL ){
+		printf("Could not render generate text: %s\n", TTF_GetError());
+		exit(1);
+	};
+    
 	m_pGameOverText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), "SCORE:" , m_pGlobal->GetColor( WHITE_COLOUR ) );
 	if( m_pGameOverText == NULL ){
 		printf("Could not render game over: %s\n", TTF_GetError());
@@ -144,21 +150,22 @@ void SceneManager::UpdateScore( int sc )
 // -- too many magic numbers in this function?
 void SceneManager::RenderInMainMenu( SDL_Surface* pScreen, int option )
 {
-    float color = SDL_MapRGB( pScreen->format, 100, 30, 30 );
-    SDL_FillRect( pScreen, NULL , color );
+    Uint32 menuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+    SDL_FillRect( pScreen, NULL , menuColour );
 	
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFeverText->w)/2, (SCREEN_HEIGHT - m_pFeverText->h)/2 - 100, m_pFeverText, pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pLoadText->w)/2, (SCREEN_HEIGHT - m_pLoadText->h)/2 + 50, m_pLoadText, pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPlayText->w)/2, (SCREEN_HEIGHT - m_pPlayText->h)/2 + 100, m_pPlayText, pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pGenText->w)/2, (SCREEN_HEIGHT - m_pGenText->h)/2 + 150, m_pGenText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pLoadText->w)/2,  (SCREEN_HEIGHT - m_pLoadText->h )/2 + 50,  m_pLoadText,  pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPlayText->w)/2,  (SCREEN_HEIGHT - m_pPlayText->h )/2 + 100, m_pPlayText,  pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pGenText->w)/2,   (SCREEN_HEIGHT - m_pGenText->h  )/2 + 150, m_pGenText,   pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScoreText->w)/2, (SCREEN_HEIGHT - m_pScoreText->h)/2 + 200, m_pScoreText, pScreen );
     
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pGenText->w)/2 - 120, (SCREEN_HEIGHT - m_pPlayer->h)/2 + (50*(option+1)), m_pPlayer, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScoreText->w)/2 - 120, (SCREEN_HEIGHT - m_pPlayer->h)/2 + (50*(option+1)), m_pPlayer, pScreen );
 	
     if( SDL_Flip( pScreen ) == -1 )
 		exit(1);
 }
 
-// Renders the scrolling background for in-game
+// Renders the background for in-game
 void SceneManager::RenderInLevel( SDL_Surface* pScreen )
 {
     //Render the frame rate and score
@@ -171,6 +178,20 @@ void SceneManager::RenderInLevel( SDL_Surface* pScreen )
     {
         m_pGlobal->ApplySurface( SCREEN_WIDTH - m_pMutedIcon->w - 12, SCREEN_HEIGHT - 50, m_pMutedIcon, pScreen );
     }
+}
+
+// Renders the scores screen
+void SceneManager::RenderInScores( SDL_Surface* pScreen )
+{
+    Uint32 scoresColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+    SDL_FillRect( pScreen, NULL , scoresColour );
+    
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScoreText->w)/2, m_pScoreText->h, m_pScoreText, pScreen );
+    
+    
+    
+    if( SDL_Flip( pScreen ) == -1 )
+		exit(1);
 }
 
 
