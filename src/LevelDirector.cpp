@@ -45,7 +45,7 @@ LevelDirector::LevelDirector(const std::string &pFilepath, SDL_Surface* pScreen)
     lvlfile >> m_songpath;
     lvlfile >> m_levelSpeed;    
     lvlfile >> m_songDuration;
-    lvlfile >> m_coinFreq;
+    lvlfile >> m_noteFreq;
     m_songDuration *= 1000; // Convert to milliseconds
 }
 
@@ -72,7 +72,7 @@ bool LevelDirector::Run()
     Player player = Player( &floor, m_levelSpeed);
     Camera camera = Camera();
     
-    CoinManager coins = CoinManager( m_levelSpeed, m_coinFreq, SCREEN_WIDTH, floor.GetLastHeight(), &floor );
+    NoteManager notes = NoteManager( m_levelSpeed, m_noteFreq, SCREEN_WIDTH, floor.GetLastHeight(), &floor );
     ColourManager colours = ColourManager(m_levelSpeed);
     EffectsManager effects = EffectsManager(m_levelSpeed);
     
@@ -128,16 +128,16 @@ bool LevelDirector::Run()
 		
 		/***** LOGIC *******/
         
-        if ( !Update(camera, player, floor, coins, colours, effects, delta.GetTicks(), dtAccumulator) )
+        if ( !Update(camera, player, floor, notes, colours, effects, delta.GetTicks(), dtAccumulator) )
         {
             playing = false;
             break;
         }
         
         
-        if (song.GetTicks() >= m_songDuration - EXTRA_TIME) //Stop coins EXTRA_TIME early so we never get coins before level stopped
+        if (song.GetTicks() >= m_songDuration - EXTRA_TIME) //Stop notes EXTRA_TIME early so we never get notes before level stopped
         {
-            coins.SetCreatingCoins(false);
+            notes.SetCreatingNotes(false);
             
             if (song.GetTicks() >= m_songDuration + EXTRA_TIME) // EXTRA_TIME seconds allow some more time to elapse
             {
@@ -150,7 +150,7 @@ bool LevelDirector::Run()
 		delta.Start(); 
         
 		/****** RENDERING *******/
-        Render(camera, player, floor, coins, colours, effects);
+        Render(camera, player, floor, notes, colours, effects);
 		
 		/***** HOUSEKEEPING *****/
 		//If we need to cap the frame rate sleep the remaining frame time 
@@ -168,7 +168,7 @@ bool LevelDirector::Run()
 //            //DEBUG
 //            std::cout << (int)(song.GetTicks()/1000) << std::endl;
             
-			OncePerSecond( delay, coins );
+			OncePerSecond( delay, notes );
 			framesPassed = delay = 0;
 		}
 	}
@@ -179,23 +179,23 @@ bool LevelDirector::Run()
 }
 
 //Per second block
-void LevelDirector::OncePerSecond( float delay, CoinManager& rCoins )
+void LevelDirector::OncePerSecond( float delay, NoteManager& rNotes )
 {	
 	m_fps = (FRAMES_PER_SECOND*1000.0f)/delay;
-    rCoins.ClearInvisible();
+    rNotes.ClearInvisible();
 }
 
 #pragma mark -
 #pragma mark Update
 
 //Updates game logic with a fixed-time step, returns false if its GAMEOVER
-bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects,  int dt, float& dtAccumulator)
+bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, NoteManager& rNotes, ColourManager& rColours, EffectsManager& rEffects,  int dt, float& dtAccumulator)
 {
     bool result = true;
     
     if (VARIABLE_TIME_STEP) //VARIABLE_TIME_STEP: More dangerous but does not skip frames hence more accurate
     {
-        result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, rEffects, dt);
+        result = UpdateGame(rCamera, rPlayer, rFloor, rNotes, rColours, rEffects, dt);
     }
     else  //FIXED_TIME_STEP: Safer but skips frames! Hence innacurate.
     {
@@ -203,7 +203,7 @@ bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, Coin
         int updates = 0;
         for (; (dt >= FIXED_TIME_STEP) && (updates < LIMIT_UPDATES) && result; dt -= FIXED_TIME_STEP, updates++)
         {
-            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, rEffects, FIXED_TIME_STEP);
+            result = UpdateGame(rCamera, rPlayer, rFloor, rNotes, rColours, rEffects, FIXED_TIME_STEP);
         }
         //Accumulate remaining ticks left between frames so we don't "play catch up" in the next few frames
         dtAccumulator += dt;
@@ -211,7 +211,7 @@ bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, Coin
         //Once this has accumulated past a FIXED_TIME_STEP, then update the game logic once again
         while ( dtAccumulator >= FIXED_TIME_STEP && result )
         {
-            result = UpdateGame(rCamera, rPlayer, rFloor, rCoins, rColours, rEffects, FIXED_TIME_STEP);
+            result = UpdateGame(rCamera, rPlayer, rFloor, rNotes, rColours, rEffects, FIXED_TIME_STEP);
             dtAccumulator -= FIXED_TIME_STEP;
         }
     }
@@ -219,8 +219,8 @@ bool LevelDirector::Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, Coin
     return result;
 }
 
-// Calls update on player, floor and coins
-bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects, float dt )
+// Calls update on player, floor and notes
+bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, NoteManager& rNotes, ColourManager& rColours, EffectsManager& rEffects, float dt )
 {
     bool result = true;
     
@@ -230,13 +230,13 @@ bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, 
     
     rFloor.Update( dt );
     
-    rCoins.Update( dt );
+    rNotes.Update( dt );
     
     rPlayer.Update( dt );
     
     rCamera.Update( dt, Point(rPlayer.GetX(), rPlayer.GetY()) );
     
-    UpdateScore( rPlayer, rCoins, rEffects );
+    UpdateScore( rPlayer, rNotes, rEffects );
     
     rEffects.Update( dt );
     
@@ -246,20 +246,20 @@ bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, 
     return result;
 }
 
-void LevelDirector::UpdateScore(Player& rPlayer, CoinManager& rCoins, EffectsManager& rEffects)
+void LevelDirector::UpdateScore(Player& rPlayer, NoteManager& rNotes, EffectsManager& rEffects)
 {   
-    int coin = rCoins.TouchCoin(rPlayer);
-    if( coin >= 0 )
+    int note = rNotes.TouchNote(rPlayer);
+    if( note >= 0 )
     {
         m_score += m_mult;
-        rCoins.Remove(coin);
+        rNotes.Remove(note);
         rEffects.ResetPlayedFlash();
     }
     
-    m_mult = (rCoins.GetTouched()/MULTIPLIER_COINS_NEEDED +1);
+    m_mult = (rNotes.GetTouched()/MULTIPLIER_COINS_NEEDED +1);
     
-    //CHECK: Could keep playing screen flash over and over if coins do not change.
-    if( rCoins.GetTouched()%MULTIPLIER_COINS_NEEDED == 0 && !rEffects.HasPlayedFlash() && m_mult != 1)
+    //CHECK: Could keep playing screen flash over and over if notes do not change.
+    if( rNotes.GetTouched()%MULTIPLIER_COINS_NEEDED == 0 && !rEffects.HasPlayedFlash() && m_mult != 1)
     {
         rEffects.PlayScreenFlash();
     }
@@ -269,7 +269,7 @@ void LevelDirector::UpdateScore(Player& rPlayer, CoinManager& rCoins, EffectsMan
 #pragma mark Render
 
 //Renders all the assets as necessary, currently return value is just ignored
-bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects )
+bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, NoteManager& rNotes, ColourManager& rColours, EffectsManager& rEffects )
 {
     bool result = true;
     
@@ -284,7 +284,7 @@ bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, Coin
     
     rFloor.Render( m_pScreen, rCamera );
     
-    rCoins.Render( m_pScreen, rCamera );
+    rNotes.Render( m_pScreen, rCamera );
     
     if( SDL_Flip( m_pScreen ) == -1 )
         exit(1);

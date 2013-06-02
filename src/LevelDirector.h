@@ -11,7 +11,7 @@
 
 #include "Global.h"
 #include "Player.h"
-#include "CoinManager.h"
+#include "NoteManager.h"
 #include "SceneManager.h"
 #include "ColourManager.h"
 #include "EffectsManager.h"
@@ -31,7 +31,7 @@
 // 1. The player
 // 2. The floor
 // 3. The background
-// 4. The coins
+// 4. The notes
 // 5. The score
 // Basically this class takes over the playing role that the GameDirector has...
 // Once a level has been played it gives complete control back over to the GameDirector!
@@ -67,7 +67,7 @@ private:
 	float m_fps;
     int m_score, m_mult;
     
-    float m_levelSpeed, m_songDuration, m_coinFreq;
+    float m_levelSpeed, m_songDuration, m_noteFreq;
     std::string m_filepath;
     std::string m_songpath;
     
@@ -76,13 +76,13 @@ private:
     
     static bool GenLevelMatlab(std::string songpath);
     
-    void OncePerSecond(float delay, CoinManager& rCoin);
+    void OncePerSecond(float delay, NoteManager& rNotes);
     
-    bool Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects, int dt, float& dtAccumulator);
-    bool UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects, float dt);
-    void UpdateScore(Player& rPlayer, CoinManager& rCoins, EffectsManager& rEffects);
+    bool Update(Camera& rCamera, Player& rPlayer, Floor& rFloor, NoteManager& rNotes, ColourManager& rColours, EffectsManager& rEffects, int dt, float& dtAccumulator);
+    bool UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, NoteManager& rNotes, ColourManager& rColours, EffectsManager& rEffects, float dt);
+    void UpdateScore(Player& rPlayer, NoteManager& rNotes, EffectsManager& rEffects);
  
-    bool Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, CoinManager& rCoins, ColourManager& rColours, EffectsManager& rEffects);
+    bool Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, NoteManager& rNotes, ColourManager& rColours, EffectsManager& rEffects);
     bool EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, ColourManager& rColours);
     
     void PauseGame(bool& game, bool& playing);

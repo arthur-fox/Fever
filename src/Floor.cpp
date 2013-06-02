@@ -14,7 +14,7 @@
 #include <thread>
 
 //TODO: 
-//  - Decision needs to be made on whether coins gen'd at runtime or statically
+//  - Decision needs to be made on whether notes gen'd at runtime or statically
 // -> Tidy up code! Especially genfloor code!
 
 Floor::Floor( const std::string &filename )
@@ -44,12 +44,12 @@ void Floor::SetFloorPoints()
     std::ifstream lvlfile;
     lvlfile.open( m_filename.c_str() );
     std::string songpath;
-    float songDuration, coinFreq;
+    float songDuration, noteFreq;
     
     lvlfile >> songpath;
     lvlfile >> m_levelSpeed;
     lvlfile >> songDuration;
-    lvlfile >> coinFreq; 
+    lvlfile >> noteFreq; 
     lvlfile >> m_pointsSize;
     m_pFloorPoints = new Point[m_pointsSize];
     
@@ -69,10 +69,12 @@ void Floor::SetFloorVertices()
     Point winSize = Point( SCREEN_WIDTH, SCREEN_HEIGHT );
     
     // Key points define the interval which we want to draw hills for
-    while ( m_pFloorPoints[m_fromKeyPointI+1].GetX() < m_offsetX-winSize.GetX()/8 ) {
+    while ( m_pFloorPoints[m_fromKeyPointI+1].GetX() < m_offsetX-winSize.GetX()/8 )
+    {
         m_fromKeyPointI++;
     }
-    while ( m_pFloorPoints[m_toKeyPointI].GetX() < m_offsetX+winSize.GetX()*9/8 ) {
+    while ( m_pFloorPoints[m_toKeyPointI].GetX() < m_offsetX+winSize.GetX()*9/8 )
+    {
         m_toKeyPointI++;
     }
 }
@@ -99,7 +101,7 @@ float Floor::LerpHeight()
 }
 
 // Returns floor height at either the start of the player + at (at defaults to 0) 
-//      or returns the height at the first point a coin would appear at on RHS
+//      or returns the height at the first point a note would appear at on RHS
 float Floor::FindHeight( int at ) const
 {
     float ret = 0;
@@ -116,7 +118,7 @@ float Floor::FindHeight( int at ) const
     else
     {
         int i = std::min(m_toKeyPointI, (int)(m_pointsSize*POINT_FREQUENCY*1.5));
-        while ( (m_pFloorPoints[i].GetX() - m_offsetX) > SCREEN_WIDTH - COIN_WIDTH/2)
+        while ( (m_pFloorPoints[i].GetX() - m_offsetX) > SCREEN_WIDTH - WALL_WIDTH) // NOTE_WIDTH/2)
         {
             i--;
         }
@@ -228,7 +230,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     ilvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
-    float coinFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * 60/bpm)*2
+    float noteFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * 60/bpm)*2
     
     int originalPointsSize = 0;
     Point* pOriginalPoints = GenOriginalPoints(&originalPointsSize);
@@ -239,7 +241,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     // DEBUG - Write FINAL_OUTPUT_FORMAT using OriginalPoints!
 //    std::ofstream olvlfile( lvlpath.c_str(), std::ios::trunc );
 //    olvlfile << songpath << std::endl;
-//    olvlfile << levelSpeed << " " << duration << " " << coinFreq << " " << originalPointsSize << std::endl;
+//    olvlfile << levelSpeed << " " << duration << " " << noteFreq << " " << originalPointsSize << std::endl;
 //    for (int i = 0; i < originalPointsSize; i++)
 //    {
 //        olvlfile << pOriginalPoints[i].GetX() << " " << pOriginalPoints[i].GetY() << " ";
@@ -256,7 +258,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
         return false;
     }
     olvlfile << songpath << std::endl;
-    olvlfile << levelSpeed << " " << duration << " " << coinFreq << " " << smoothPointsSize << std::endl;
+    olvlfile << levelSpeed << " " << duration << " " << noteFreq << " " << smoothPointsSize << std::endl;
     for (int i = 0; i < smoothPointsSize; i++)
     {
         olvlfile << pSmoothPoints[i].GetX() << " " << pSmoothPoints[i].GetY() << " ";

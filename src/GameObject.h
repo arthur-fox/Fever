@@ -13,7 +13,7 @@
 #include "Camera.h"
 
 // GameObject is the superclass for all INTERACTABLE objects in the game 
-// eg. player, coins, floor
+// eg. player, notes, floor
 //NOTE: All subclasses must initialise EVERY protected variable in their constructor
 
 class GameObject

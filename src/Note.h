@@ -14,18 +14,18 @@
 
 //TODO: Finish
 
-// Coin is the superclass that any coins in the game must inherit from
-// BUT currently its the only coin, so its concrete not abstract
+// Coin is the superclass that any notes in the game must inherit from
+// BUT currently its the only note, so its concrete not abstract
 
-class Coin : public GameObject
+class Note : public GameObject
 {	
 public:
     
-	Coin();
-    Coin( int vel, int initialX, int initialY, Floor* pFloor);
-    ~Coin();
+	Note();
+    Note( int vel, int initialX, int initialY, Floor* pFloor);
+    ~Note();
     
-    void InitCoinImages();
+    void InitNoteImages();
     
 	void HandleInput( float dt );
 	bool virtual Update( float dt ); //Return false if its gameover
@@ -37,7 +37,7 @@ public:
     
 private:
 	
-    static SDL_Surface *ms_pCoinImg;
+    static SDL_Surface *ms_pNoteImg1, *ms_pNoteImg2, *ms_pNoteImg3, *ms_pClefImg;
     
     Floor* m_pFloor;
 };

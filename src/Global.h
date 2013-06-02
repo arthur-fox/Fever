@@ -28,6 +28,10 @@
 #define RESOURCE_FONT           "Insignia.otf"
 #define RESOURCE_PLAYER         "Blob2.png"
 #define RESOURCE_COIN           "SimpleCoin2.png"
+#define RESOURCE_NOTE1          "Note1_2.png"
+#define RESOURCE_NOTE2          "Note2_2.png"
+#define RESOURCE_NOTE3          "Note3_2.png"
+#define RESOURCE_CLEF           "TrebleClef_2.png"
 
 #define LEVEL_PATH              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/"
 #define LEVEL_EXTENSION         ".lvl"
@@ -85,9 +89,9 @@ const int INIT_JUMP = 1000; //766;
 const int INIT_GRAVITY = 3090;
 const int INIT_WALK = 736;
 
-//Coin Constants
-const int COIN_WIDTH = 45;
-const int COIN_HEIGHT = 45;
+//Note Constants
+//const int NOTE_WIDTH = 45; // NOTE: NOT CONSTANT!
+const int NOTE_HEIGHT = 45; // NOTE: Constant for all notes except Treble Clef
 
 //Score constants
 const int INIT_SCORE = 0;
