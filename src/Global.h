@@ -85,6 +85,7 @@ const int TITLE_FONT = 4;
 //Dimensions of player
 const int PLAYER_WIDTH = 100;
 const int PLAYER_HEIGHT = 70;
+const int PLAYER_JUMP = 180; // Rough estimate needed for Note generation
 
 //Player Constants
 const int INIT_JUMP = 1000; //766;

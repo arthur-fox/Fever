@@ -46,26 +46,23 @@ void NoteManager::Update(float dt)
 	for (m_it=notes.begin(); m_it < notes.end(); m_it++)
 		m_it->Update(dt);
     
-    if (m_creatingNotes)
+    if (m_creatingNotes && (notes.empty() || (notes.back().GetX()<= SCREEN_WIDTH - m_noteFreq)))
     {
-        //TODO: THIS NEEDS TO DONE IN THE FILE GENERATION PART!
-        //      JUMP value will be higher for more difficult songs
-        //      and DISTANCE_BETWEEN_COINS will vary too
-        // --> as long as seed is same this will always provide consistent results
-        int JUMP = 200;
-        int noteFloorHeight = m_pFloor->GetLastHeight();
+        //TODO: This needs to be perfected
+        //NOTE: Not random since srand() always init to same seed
+        int floorHeight = m_pFloor->GetLastHeight();
         
-        int diffInJumpAndFLoor = noteFloorHeight - JUMP;
-        int range = (noteFloorHeight - abs(diffInJumpAndFLoor));                
+        int diffInJumpAndFLoor = floorHeight - PLAYER_JUMP;
+        int range = (floorHeight - abs(diffInJumpAndFLoor));                
         
-        if (range == 0) range = 1;
+        if (range == 0) range = 1; //Avoids division by 0
         int randHeight = (rand() % range) + abs(diffInJumpAndFLoor);
         
         while (randHeight < NOTE_HEIGHT) randHeight += NOTE_HEIGHT/2;
-        while (randHeight + NOTE_HEIGHT >= noteFloorHeight) randHeight -= NOTE_HEIGHT/2;
-        if (randHeight < NOTE_HEIGHT) randHeight = NOTE_HEIGHT; //Last ditch attempt!
-           
-        AddNote(m_width, randHeight);
+        while (randHeight + NOTE_HEIGHT >= floorHeight) randHeight -= NOTE_HEIGHT/2;
+        if (randHeight < NOTE_HEIGHT) randHeight = NOTE_HEIGHT; //Last ditch attempt - Ensures notes not too far up
+        
+        NewNote(m_width, randHeight);
     }
 }
 

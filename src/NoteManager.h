@@ -55,7 +55,7 @@ private:
     //Flag saying whether notes are being created or not
     bool m_creatingNotes;
 	
-	//Creates new platform and adds to platform vector
+	//Creates new note and adds to notes vector
 	void NewNote( int initialX = -1, int initialY = -1 );
 };
 

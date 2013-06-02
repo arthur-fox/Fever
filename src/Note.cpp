@@ -15,7 +15,8 @@ SDL_Surface *Note::ms_pNoteImg2(0);
 SDL_Surface *Note::ms_pNoteImg3(0);
 SDL_Surface *Note::ms_pClefImg(0);
 
-const int TYPES_OF_NOTES = 3; // 3 - Ignoring Clef
+const int NOTE_TYPES = 3; // 3 - Ignoring Clef
+const float NOTE_DANCE_FACTOR = 2.5;
 
 #pragma mark -
 #pragma mark CoinFunctions
@@ -27,7 +28,7 @@ Note::Note( int vel, int initialX, int initialY, Floor* pFloor)
         InitNoteImages();
     
     //Gives Note a random image,
-	int imgSize = (rand() % TYPES_OF_NOTES)+1;
+	int imgSize = (rand() % NOTE_TYPES)+1;
 	switch (imgSize)
 	{
         case 4:
@@ -81,8 +82,7 @@ bool Note::Update( float dt )
 	m_x -= m_xVel * ( dt / 1000.f );
     
     float heightDiff = m_pFloor->GetNextHeight() - m_pFloor->GetHeight();
-    
-    m_y += heightDiff/3; // * ( dt / 1000.f );
+    m_y += heightDiff/NOTE_DANCE_FACTOR; // * ( dt / 1000.f );
     
 	return true;
 }
