@@ -19,9 +19,9 @@
 #include "Timer.h"
 #include "Colour.h"
 #include "Camera.h"
+#include <map>
 
 
-//TODO: FINISH!
 //A NEW ONE CREATED EVERYTIME A PERSON SELECTS A LEVEL
 
 // NEED TO SETTLE ON GAME CLASS ARCHITECTURE
@@ -38,8 +38,6 @@
 // --
 // The level must make all the decisions based on a file that the GameDirector gives it!
 // Hopefully decouple everything!
-
-
 
 const int EXTRA_TIME = 3000;  //This should really be related to levelSpeed
 const int MULTIPLIER_COINS_NEEDED = 10; // DOES THIS BELONG HERE?
@@ -85,6 +83,7 @@ private:
     bool Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, NoteManager& rNotes, ColourManager& rColours, EffectsManager& rEffects);
     bool EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor, ColourManager& rColours);
     void UpdateHighScores();
+    std::map<std::string,int> ScoresToMap();
     
     void PauseGame(bool& game, bool& playing);
 };

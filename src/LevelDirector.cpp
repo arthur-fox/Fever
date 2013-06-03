@@ -11,7 +11,6 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
-#include <map>
 
 Global* LevelDirector::ms_pGlobal(0);
 
@@ -346,12 +345,21 @@ bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor,
 {   
     bool game = true;
     
+    std::map<std::string,int> scores = ScoresToMap();
+    int previousScore = 0;
+    std::string songName = Path::NameFromPath(m_filepath);
+    if ( scores.find(songName) != scores.end() )
+    {
+        previousScore = scores.at(songName);
+    }
+    m_pSceneManager->UpdatePreviousScore(previousScore);
+    
     bool ending = true;
     while ( ending )
     {
         rColours.Render(m_pScreen);
         
-        m_pSceneManager->RenderLevelOver( m_pScreen);
+        m_pSceneManager->RenderLevelOver( m_pScreen );
         
         rFloor.End(m_pScreen, rCamera);
         
@@ -389,6 +397,31 @@ int LevelDirector::EndEventFilter( const SDL_Event *pEvent )
 void LevelDirector::UpdateHighScores()
 {
     /* Save high scores into a map */
+    std::map<std::string,int> scores = ScoresToMap();
+    
+    /* Update score */
+    std::string songName = Path::NameFromPath(m_filepath);
+    if ( scores.find(songName) == scores.end() )
+    {
+        scores.insert( std::pair<std::string,int>(songName,m_score) );
+    }
+    else if ( scores.at(songName) < m_score )
+    {
+        scores.at(songName) = m_score;
+    }
+    
+    /* Store high scores back into the file */
+    std::ofstream outHighScores;
+    outHighScores.open( LEVEL_SCORES, std::ios::trunc );
+    for (std::map<std::string,int>::iterator it=scores.begin(); it!=scores.end(); ++it)
+    {
+        outHighScores << it->first << "\t\t" << it->second << "\n";
+    }
+    outHighScores.close();
+}
+
+std::map<std::string,int> LevelDirector::ScoresToMap()
+{
     std::map<std::string,int> scores;
     
     std::ifstream inHighScores;
@@ -412,25 +445,7 @@ void LevelDirector::UpdateHighScores()
     }
     inHighScores.close();
     
-    /* Update score */
-    std::string songName = Path::NameFromPath(m_filepath);
-    if ( scores.find(songName) == scores.end() )
-    {
-        scores.insert( std::pair<std::string,int>(songName,m_score) );
-    }
-    else if ( scores.at(songName) < m_score )
-    {
-        scores.at(songName) = m_score;
-    }
-    
-    /* Store high scores back into the file */
-    std::ofstream outHighScores;
-    outHighScores.open( LEVEL_SCORES, std::ios::trunc );
-    for (std::map<std::string,int>::iterator it=scores.begin(); it!=scores.end(); ++it)
-    {
-        outHighScores << it->first << "\t\t" << it->second << "\n";
-    }
-    outHighScores.close();
+    return scores;
 }
 
 #pragma mark -
@@ -449,14 +464,12 @@ bool LevelDirector::GenLevel(std::string lvlpath, std::string songpath)
     ret &= GenLevelMatlab(songpath);
     
     // With PARTIAL_OUTPUT generate all the other required parts in the FINAL_OUTPUT.
-    //  - currently only the floor is generated
-    //    still need to do Coins and Colours
+    // Current method only puts Floor into FINAL_OUTPUT
     ret &= Floor::GenFloorPoints(lvlpath, songpath);
     
     // Generated FINAL_OUTPUT, so I can now delete PARTIAL_OUTPUT
-    // NOTE: Not deleting atm because these values are useful to look at!!!
-//    if ( remove(LEVEL_TEMP) != 0)
-//        printf("Unable to delete LEVEL_TEMP\n");
+    if ( remove(LEVEL_TEMP) != 0)
+        printf("Unable to delete LEVEL_TEMP\n");
     
     return ret;
 }

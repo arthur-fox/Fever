@@ -58,17 +58,17 @@ SceneManager::SceneManager()
 		exit(1);
 	};
     
-	m_pGameOverText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), "SCORE:" , m_pGlobal->GetColor( WHITE_COLOUR ) );
-	if( m_pGameOverText == NULL ){
+	m_pShowScoreText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), "SCORE:" , m_pGlobal->GetColor( WHITE_COLOUR ) );
+	if( m_pShowScoreText == NULL ){
 		printf("Could not render game over: %s\n", TTF_GetError());
 		exit(1);
 	}
 	
-//	m_pTryAgainText = TTF_RenderText_Solid( m_pGlobal->getFont(SMALL_FONT), "Press any key to try again" , m_pGlobal->getColor(WHITE) );
-//	if( m_pTryAgainText == NULL ){
-//		printf("Could not render try again: %s\n", TTF_GetError());
-//		exit(1);
-//	}
+	m_pPrevScoreText = TTF_RenderText_Solid( m_pGlobal->GetFont(SMALL_FONT), "PREVIOUS SCORE:" , m_pGlobal->GetColor( WHITE_COLOUR ) );
+	if( m_pPrevScoreText == NULL ){
+		printf("Could not render try again: %s\n", TTF_GetError());
+		exit(1);
+	}
     
 	m_pScore = TTF_RenderText_Blended(  m_pGlobal->GetFont( SMALL_FONT ), "0" , m_pGlobal->GetColor( WHITE_COLOUR ));
 	if( m_pScore == NULL ){
@@ -108,11 +108,23 @@ void SceneManager::UpdateInLevel( float dt, float fps, int sc, int mult )
     UpdateScore( sc );
 }
 
+//Update the frame score
+void SceneManager::UpdatePreviousScore( int sc )
+{
+	std::stringstream stream;
+	stream << sc;
+	std::string mystr = stream.str();
+    
+    SDL_FreeSurface( m_pTempText );
+	m_pTempText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), mystr.c_str(), m_pGlobal->GetColor( WHITE_COLOUR ) );
+}
+
 
 void SceneManager::ResetScene()
 {
     m_bgX = m_bgY = 0;
     UpdateFrameRate( 0 );
+    UpdateMultiplier( 1 );
     UpdateScore( 0 );
 }
 
@@ -222,10 +234,10 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen )
 
 
 void SceneManager::RenderLevelOver( SDL_Surface* pScreen )
-{
-    //TODO:
-    // show previous high score?
-    
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pGameOverText->w)/2, (SCREEN_HEIGHT - m_pGameOverText->h)/2 - 110, m_pGameOverText, pScreen );
+{    
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pShowScoreText->w)/2, (SCREEN_HEIGHT - m_pShowScoreText->h)/2 - 110, m_pShowScoreText, pScreen );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, (SCREEN_HEIGHT - m_pScore->h)/2 - 50, m_pScore, pScreen );
+    
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPrevScoreText->w)/2, (SCREEN_HEIGHT - m_pPrevScoreText->h)/2 + 50, m_pPrevScoreText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pTempText->w)/2, (SCREEN_HEIGHT - m_pTempText->h)/2 + 110, m_pTempText, pScreen );
 }
