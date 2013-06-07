@@ -21,12 +21,12 @@
 #include "engine.h"
 #include "Path.h"
 
-#define GAME_NAME               "FEVER"
+#define GAME_NAME               "MOZART"//"FEVER"
 
 #define RESOURCE_PATH           "Fever.app/Contents/Resources/"
 #define RESOURCE_TITLE_FONT     "ldmusic.ttf"
 #define RESOURCE_FONT           "Insignia.otf"
-#define RESOURCE_PLAYER         "Blob2.png"
+#define RESOURCE_PLAYER         "Mozart5.png"//"Blob2.png"
 #define RESOURCE_COIN           "SimpleCoin2.png"
 #define RESOURCE_NOTE1          "Note1_2.png"
 #define RESOURCE_NOTE2          "Note2_2.png"
@@ -36,7 +36,7 @@
 #define LEVEL_PATH              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/"
 #define LEVEL_EXTENSION         ".lvl"
 #define LEVEL_NOT_LOADED        "NULL"
-#define LEVEL_TEMP              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/TempOutput.lvl"
+#define LEVEL_TEMP              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/TempOutput.plvl"
 #define LEVEL_SCORES            "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/Scores.sc"
 
 #define MUSIC_SUCCESS           "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Songs/Secret.wav"
@@ -46,7 +46,7 @@
 #define FORMATS_LEVEL           "lvl"
 
 //Debugging variables
-const bool MATLAB_ON = true;
+const bool MATLAB_ON = false;
 
 //Update attributes
 const bool VARIABLE_TIME_STEP = true;

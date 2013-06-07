@@ -13,7 +13,7 @@ const int SPEED_DAMPENING = 2;
 const int UP_CHANGE_FACTOR = 5000;
 const int BASE_TEMPO = 50;
 
-// TODO: CHANGE THESE BOUNDARIES BASED ON SOME CRITERIA
+// TODO: CHANGE THESE BOUNDARIES BASED ON SOME CRITERIA?
 const int UPPER_COLOUR = 220;
 const int LOWER_COLOUR = 35;
 const int COLOUR_BAND_WIDTH = 5;    // DECREASE makes variation in background colour LARGER
@@ -35,14 +35,14 @@ ColourManager::ColourManager(float levelSpeed)
     m_currChannel = COLOUR_RED;
     for (int i = 0; i < NUM_COLOUR_CHANNELS; i++)
     {
-        if ( levelSpeed/LEVEL_SPEED_FACTOR > BASE_TEMPO*(i+1) )
-        {
+//        if ( levelSpeed/LEVEL_SPEED_FACTOR > BASE_TEMPO*(i+1) )
+//        {
             m_availableChannels[i] = true;
-        }
-        else
-        {
-            m_availableChannels[i] = false;
-        }
+//        }
+//        else
+//        {
+//            m_availableChannels[i] = false;
+//        }
     }
 }
 

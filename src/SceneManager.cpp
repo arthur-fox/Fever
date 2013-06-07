@@ -170,7 +170,8 @@ void SceneManager::UpdateScore( int sc )
 // -- too many magic numbers in this function?
 void SceneManager::RenderInMainMenu( SDL_Surface* pScreen, int option )
 {
-    Uint32 menuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+//        Uint32 menuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+    Uint32 menuColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
     SDL_FillRect( pScreen, NULL , menuColour );
 	
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFeverText->w)/2,    (SCREEN_HEIGHT - m_pFeverText->h)/2 - 100,  m_pFeverText,   pScreen );
@@ -203,7 +204,8 @@ void SceneManager::RenderInLevel( SDL_Surface* pScreen )
 // Renders the scores screen
 void SceneManager::RenderInScores( SDL_Surface* pScreen )
 {
-    Uint32 scoresColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+//    Uint32 scoresColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+    Uint32 scoresColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
     SDL_FillRect( pScreen, NULL , scoresColour );
     
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pHighScoreText->w)/2, m_pHighScoreText->h, m_pHighScoreText, pScreen );

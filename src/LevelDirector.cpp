@@ -282,11 +282,11 @@ bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, Note
     
     m_pSceneManager->RenderInLevel( m_pScreen );
     
-    rPlayer.Render( m_pScreen, rCamera );
-    
     rFloor.Render( m_pScreen, rCamera );
     
     rNotes.Render( m_pScreen, rCamera );
+    
+    rPlayer.Render( m_pScreen, rCamera );
     
     if( SDL_Flip( m_pScreen ) == -1 )
         exit(1);
@@ -475,41 +475,48 @@ bool LevelDirector::GenLevel(std::string lvlpath, std::string songpath)
 }
 
 //TEMPORARILY WRITING ALL THE CONTENTS OUT OF MY SCRIPT TO THIS FUNCTION UNTIL 
-//I FIGURE OUT HOW TO USE SCRIPT WITHOUT PERMISSION ERRORS
+//I FIGURE OUT HOW TO USE SCRIPT DIRECTLY WITHOUT PERMISSION ERRORS
 bool LevelDirector::GenLevelMatlab(std::string songpath)
 {
 //    ms_pGlobal->EvalMatlabString( std::string("GenLevel('" + songpath + ", " + LEVEL_TEMP + "');").c_str() );
     
     ms_pGlobal->EvalMatlabString( std::string("audio    = miraudio('" + songpath + "');").c_str() );
-    ms_pGlobal->EvalMatlabString( "energy   = mirenvelope(audio);" );
     ms_pGlobal->EvalMatlabString( "bands    = mirenvelope(mirfilterbank(audio, 'NbChannels', 3));" );
     ms_pGlobal->EvalMatlabString( "tempo    = mirtempo(bands);" );
     ms_pGlobal->EvalMatlabString( "signature= mirkey(bands);" );
+    
+    /* ALL DIFFERENT METHODS OF CALCULATING ENERGY! ie. Floor! */
+    ms_pGlobal->EvalMatlabString( "energy   = mirenvelope(audio);" ); // ENVELOPE FOR ALL FREQUENCIES
+//    ms_pGlobal->EvalMatlabString( "energy   = mironsets(audio);" ); // ONSETS!
+//    ms_pGlobal->EvalMatlabString( "energy   = mirsum(bands);" ); //MIRSUM OF 3 BANDS - FEELS TUMOLTUOUS IN HIGH ENERGY, BORING IN LOW
+//    ms_pGlobal->EvalMatlabString( "energy   = mirfilterbank(bands, 'Channels', 1);" ); // ONLY LOOK AT LOW FREQUENCIES
+//    ms_pGlobal->EvalMatlabString( "energy   = mirfilterbank(bands, 'NbChannels', 2, 'Channels', 2);" ); // ONLY LOOK AT HIGH FREQUENCIES
 
-    ms_pGlobal->EvalMatlabString( "len = get(audio,'Length');");
-    ms_pGlobal->EvalMatlabString( "len = len{1}{1};" );
-    ms_pGlobal->EvalMatlabString( "s   = get(audio,'Sampling');");
-    ms_pGlobal->EvalMatlabString( "s   = s{1};");
-    ms_pGlobal->EvalMatlabString( "duration  = len/s;");
+    /* CAN BE DONE THROUGH mirlength */
+//    ms_pGlobal->EvalMatlabString( "len = get(audio,'Length');");
+//    ms_pGlobal->EvalMatlabString( "len = len{1}{1};" );
+//    ms_pGlobal->EvalMatlabString( "s   = get(audio,'Sampling');");
+//    ms_pGlobal->EvalMatlabString( "s   = s{1};");
+//    ms_pGlobal->EvalMatlabString( "duration  = len/s;");
+    ms_pGlobal->EvalMatlabString( "duration  = mirlength(audio);");
     
     ms_pGlobal->EvalMatlabString( "eSampling = get(energy, 'Sampling');");
     ms_pGlobal->EvalMatlabString( "tempo     = mirgetdata(tempo);");
     ms_pGlobal->EvalMatlabString( "energy    = mirgetdata(energy);");
     ms_pGlobal->EvalMatlabString( "eSize     = length(energy);");
-    ms_pGlobal->EvalMatlabString( "signature = mean(mirgetdata(signature))*tempo;");
+    ms_pGlobal->EvalMatlabString( "signature = mean(mirgetdata(signature))*mean(energy)*tempo;");
     ms_pGlobal->EvalMatlabString( "bands     = mirgetdata(bands);");
     
-    std::string lvl("lvlpath   = '"); 
-    lvl.append(LEVEL_TEMP).append("';");
-    ms_pGlobal->EvalMatlabString( lvl.c_str() );
+    ms_pGlobal->EvalMatlabString( std::string("lvlpath   = '" + std::string(LEVEL_TEMP) + "';").c_str() );
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, signature);");
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, tempo, '-append');");
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, duration, '-append');");
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, eSampling, '-append');");
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, eSize, '-append','precision','%.1f');");
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, energy,'-append','precision','%.10f');");
-//    %dlmwrite(lvlpath, bandsSize, '-append'); ???
-    ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, bands, '-append');");
+    /* ENERGY BAND VALUES NOT USED SO COMMENTED OUT*/
+//    ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, bandsSize, '-append');");
+//    ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, bands, '-append');");
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, 'E', '-append');");
 
     ms_pGlobal->EvalMatlabString( "clearvars audio tempo energy bands signature duration eSampling eSize len s;");
@@ -531,7 +538,6 @@ double *ds;
 ds = mxGetPr(pArr);
 std::cout << ds[0] << " " << ds[m-1] <<std::endl;
 mxDestroyArray(pArr);
-
 
 // use mirfeatures to analyse features then either export it to file with mirexport, 
 // or get them with engGetVariable() and use them directly from matlab engine.

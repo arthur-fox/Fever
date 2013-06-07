@@ -13,7 +13,7 @@
 #include <iostream>
 
 // NOT SURE HOW TO SET THIS VALUE CORRECTLY
-const float MAX_YVEL = 1000;
+const float MAX_YVEL = 1500;
 
 //NOTE: LevelSpeed was introduced to alter gravity and jump but currently unused
 Player::Player( Floor* pFloor, float levelSpeed )

@@ -12,7 +12,7 @@
 #include "GameObject.h"
 #include "Floor.h"
 
-// Player represents the avatar (Blob) in the game
+// Player represents the avatar in the game
 
 class Player : public GameObject
 {
