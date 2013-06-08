@@ -23,6 +23,7 @@ Global* MenuDirector::ms_pGlobal(0);
 std::string MenuDirector::ms_spath;
 std::string MenuDirector::ms_sname;
 std::string MenuDirector::ms_lpath;
+int MenuDirector::ms_genOption;
 
 #pragma mark -
 #pragma mark Constructor
@@ -35,7 +36,7 @@ MenuDirector::MenuDirector( SDL_Surface* pScreen )
     
     m_pSceneManager = new SceneManager();
     
-    m_option = LOAD_LEVEL;
+    m_menuOption = LOAD_LEVEL;
     m_displayScores = false;
 
     m_loadedLevel.assign( LEVEL_NOT_LOADED );
@@ -57,7 +58,7 @@ bool MenuDirector::Run( std::string* pLvlname )
 {
 	bool game = true;
 	
-    m_pSceneManager->RenderInMainMenu( m_pScreen, m_option );
+    m_pSceneManager->RenderInMainMenu( m_pScreen, m_menuOption );
 	
 	SDL_SetEventFilter( MainMenuEventFilter );
 	
@@ -86,10 +87,10 @@ bool MenuDirector::Run( std::string* pLvlname )
             }
         
             if( m_event.key.keysym.sym == SDLK_UP)
-                m_option = ((m_option-1 % NUM_OPTIONS) + NUM_OPTIONS) % NUM_OPTIONS;
+                m_menuOption = ((m_menuOption-1 % NUM_OPTIONS) + NUM_OPTIONS) % NUM_OPTIONS;
             
             if( m_event.key.keysym.sym == SDLK_DOWN)
-                m_option = ((m_option+1 % NUM_OPTIONS) + NUM_OPTIONS) % NUM_OPTIONS;
+                m_menuOption = ((m_menuOption+1 % NUM_OPTIONS) + NUM_OPTIONS) % NUM_OPTIONS;
             
             if( m_event.key.keysym.sym == SDLK_RETURN)
                 loop = HandleOption();
@@ -99,7 +100,7 @@ bool MenuDirector::Run( std::string* pLvlname )
         if (m_displayScores)
             m_pSceneManager->RenderInScores( m_pScreen );
         else
-            m_pSceneManager->RenderInMainMenu( m_pScreen, m_option );
+            m_pSceneManager->RenderInMainMenu( m_pScreen, m_menuOption );
 	}
 	
 	SDL_SetEventFilter( NULL );
@@ -127,16 +128,16 @@ bool MenuDirector::HandleOption()
 {
     bool ret = true;
     
-    if( m_option == LOAD_LEVEL )
+    if( m_menuOption == LOAD_LEVEL )
         ret = LoadLevel();
     
-    else if( m_option == PLAY_LEVEL )
+    else if( m_menuOption == PLAY_LEVEL )
         ret = PlayLevel();
     
-    else if( m_option == GEN_LEVEL )
+    else if( m_menuOption == GEN_LEVEL )
         ret = GenLevel();
     
-    else if( m_option == HIGH_SCORES )
+    else if( m_menuOption == HIGH_SCORES )
         ret = HighScores();
     
     return ret;
@@ -175,15 +176,24 @@ bool MenuDirector::GenLevel()
         std::string songpath = DialogBox::OpenFileBrowser(FORMATS_AUDIO);
         if( songpath.compare( LEVEL_NOT_LOADED ) != 0 )
         {
-            std::string songname = Path::NameFromPath( songpath );
-            std::string lvlpath = LEVEL_PATH + songname + LEVEL_EXTENSION;
-            
-            //HACK - because std::thread initialisation would not accept argument passing
-            ms_spath.assign( songpath );
-            ms_sname.assign( songname );
-            ms_lpath.assign( lvlpath );
-            std::thread genThread( Generate );
-            genThread.detach();
+            //If user X's or ESC's out then we leave this menu
+            if ( HandleGenOption() )
+            {
+                //Appropriatley name the level based on songname and option
+                std::string songname = Path::NameFromPath( songpath );
+                std::string lvlpath = LEVEL_PATH + songname + "_";
+                if      (ms_genOption == OPTION_AMPLITUDE) lvlpath.append(LEVEL_AMPLITUDE);
+                else if (ms_genOption == OPTION_FREQUENCY) lvlpath.append(LEVEL_FREQUENCY);
+                else if (ms_genOption == OPTION_ENERGY   ) lvlpath.append(LEVEL_ENERGY   );
+                lvlpath.append(LEVEL_EXTENSION);
+                
+                //HACK - because std::thread initialisation would not accept argument passing
+                ms_spath.assign( songpath );
+                ms_sname.assign( songname );
+                ms_lpath.assign( lvlpath );
+                std::thread genThread( Generate );
+                genThread.detach();
+            }
         }
     }
     else if ( !MATLAB_ON )
@@ -194,6 +204,17 @@ bool MenuDirector::GenLevel()
     {
         printf("Wait for Level Generation to end!\n");
     }
+    
+    return true;
+}
+
+
+bool MenuDirector::HandleGenOption()
+{
+    //TODO: NEED TO GIVE THE PLAYER THE OPTION HERE
+    //   -> BRING UP A LITTLE OPTIONS SCREEN AND WHILE LOOP
+    
+    ms_genOption = OPTION_FREQUENCY;
     
     return true;
 }
@@ -213,7 +234,7 @@ void MenuDirector::Generate()
 {
     if ( ms_spath.compare( LEVEL_NOT_LOADED ) == 0 || 
          ms_sname.compare( LEVEL_NOT_LOADED ) == 0 || 
-         ms_lpath.compare( LEVEL_NOT_LOADED ) == 0 )
+         ms_lpath.compare( LEVEL_NOT_LOADED ) == 0)
     {
         printf( "Error generating level: paths not set correctly" );
         return;
@@ -222,7 +243,7 @@ void MenuDirector::Generate()
     ms_pGlobal = Global::SharedGlobal();
     ms_pGlobal->SetThreadRunning( true );
     
-    if ( !LevelDirector::GenLevel( ms_lpath, ms_spath ) )
+    if ( !LevelDirector::GenLevel( ms_lpath, ms_spath, ms_genOption ) )
     {
         Mix_Chunk *chunk;
         chunk = Mix_LoadWAV(MUSIC_FAIL);
@@ -234,7 +255,7 @@ void MenuDirector::Generate()
         Mix_Chunk *chunk;
         chunk = Mix_LoadWAV(MUSIC_SUCCESS);
         Mix_PlayChannel(1, chunk, 0);
-        std::cout << "Successfuly generated: " << ms_sname + LEVEL_EXTENSION << std::endl;
+        std::cout << "Successfuly generated: " << Path::NameFromPath(ms_lpath) + LEVEL_EXTENSION << std::endl;
     }
     
     ms_pGlobal->SetThreadRunning( false );

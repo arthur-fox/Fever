@@ -52,7 +52,7 @@ public:
     
     bool Run();
     
-    static bool GenLevel( std::string lvlpath, std::string songpath );
+    static bool GenLevel( std::string lvlpath, std::string songpath, int option);
     
 private:	
     
@@ -72,7 +72,7 @@ private:
     static int PauseEventFilter( const SDL_Event *pEvent );
     static int EndEventFilter( const SDL_Event *pEvent );
     
-    static bool GenLevelMatlab(std::string songpath);
+    static bool GenLevelMatlab(std::string songpath, int option);
     
     void OncePerSecond(float delay, NoteManager& rNotes);
     

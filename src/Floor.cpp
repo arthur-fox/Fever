@@ -284,30 +284,41 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
     }
     
     //Locals:
-    float signature, tempo, duration, sampling;
-    int envSize;
+    float signature, tempo, duration, normaliser, sampling;
+    int option, envSize;
     
     ilvlfile >> signature;
     ilvlfile >> tempo;
     ilvlfile >> duration;
+    ilvlfile >> normaliser;
+    ilvlfile >> option;
     ilvlfile >> sampling;
     ilvlfile >> envSize;
     
     float* envelopeArr = new float[envSize];
     
-    float normaliser = 0;
+    float maxVal = 0;
     for (int i = 0; i < envSize; i++)
     {
         ilvlfile >> envelopeArr[i];
-        normaliser = std::max(normaliser,envelopeArr[i]);
+        maxVal = std::max(maxVal, envelopeArr[i]);
     }
     ilvlfile.close();
+
+    //DEBUG
+    std::cout << "DEBUG: Option: " << option << ", Max: " << maxVal << ", Normaliser: " << normaliser << std::endl;
+    
+    if (option != OPTION_AMPLITUDE)
+    {
+        for (int i = 0; i < envSize; i++)
+            envelopeArr[i] *= (normaliser/maxVal);
+    }
+    
     
     // Adjust Normaliser: Normaliser = (LargestVal/MaxNorm * Range) + MinNorm!
     // OR just Increase by a small amount - with larger numbers the increase is less noticeable hence similar effect
 //    normaliser = (normaliser/MAX_FLOOR_NORMALISER) * (MAX_FLOOR_NORMALISER - MIN_FLOOR_NORMALISER) + MIN_FLOOR_NORMALISER;
     normaliser += INCREASE_FLOOR_NORMALISER;
-    
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
     float xTravelledPerSecond = levelSpeed*HEURISTIC_TIME_LOST;
@@ -323,15 +334,14 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
         
         // Sums values between given interval
         for ( int j = (i-1)*dataUsedPerPoint; j < i*dataUsedPerPoint; j++ )
-            y += (envelopeArr[j]/normaliser);
+            y += envelopeArr[j];
         
         // Find mean of y
-        y /= dataUsedPerPoint;
+        y /= (dataUsedPerPoint * normaliser);
         
-        // Now convert this to be inbetween 0 and SCREEN_HEIGHT and include padding
-        // - Values are currently [0,0.5] so y*SCREEN_HEIGHT*2?
+        // Now convert this to be inbetween 0 and LEVEL_HEIGHT
         y *= LEVEL_HEIGHT; 
-        y += LEVEL_PADDING;
+//        y += LEVEL_PADDING;
 //        if (y >= LEVEL_HEIGHT)
 //            y = LEVEL_HEIGHT;
         
@@ -360,7 +370,7 @@ Point* Floor::GenSmoothPoints(Point* pOriginalPoints, int originalPointsSize, in
     // CHECK: What should the exact size be?
     Point* pSmoothPoints = new Point[originalPointsSize*originalPointsSize];
     
-    //    // The following code uses cosine approximations to make the hills smooth
+    // The following code uses cosine approximations to make the hills smooth
     int idx = 0;
     for ( int i = 0; i < originalPointsSize-1; i++ )
     {

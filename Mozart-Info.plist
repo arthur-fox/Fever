@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Blob.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>Arthur.ox${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>Arthur.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

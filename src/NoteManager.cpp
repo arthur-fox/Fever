@@ -58,9 +58,9 @@ void NoteManager::Update(float dt)
         if (range == 0) range = 1; //Avoids division by 0
         int randHeight = (rand() % range) + abs(diffInJumpAndFLoor);
         
-        while (randHeight < NOTE_HEIGHT) randHeight += NOTE_HEIGHT/2;
+//        while (randHeight < NOTE_HEIGHT) randHeight += NOTE_HEIGHT/2;
         while (randHeight + NOTE_HEIGHT >= floorHeight) randHeight -= NOTE_HEIGHT/2;
-        if (randHeight < NOTE_HEIGHT) randHeight = NOTE_HEIGHT; //Last ditch attempt - Ensures notes not too far up
+//        if (randHeight < NOTE_HEIGHT) randHeight = NOTE_HEIGHT; //Last ditch attempt - Ensures notes not too far up
         
         NewNote(m_width, randHeight);
     }

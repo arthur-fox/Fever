@@ -38,6 +38,9 @@
 #define LEVEL_NOT_LOADED        "NULL"
 #define LEVEL_TEMP              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/TempOutput.plvl"
 #define LEVEL_SCORES            "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/Scores.sc"
+#define LEVEL_AMPLITUDE         "Amplitude"
+#define LEVEL_FREQUENCY         "Frequency"
+#define LEVEL_ENERGY            "Energy"
 
 #define MUSIC_SUCCESS           "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Songs/Secret.wav"
 #define MUSIC_FAIL              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Songs/Error.wav"
@@ -46,7 +49,11 @@
 #define FORMATS_LEVEL           "lvl"
 
 //Debugging variables
-const bool MATLAB_ON = false;
+const bool MATLAB_ON = true;
+
+// ************************************************************
+//      Should all these variables even be stored here?
+//
 
 //Update attributes
 const bool VARIABLE_TIME_STEP = true;
@@ -78,10 +85,6 @@ const int MEDIUM_FONT = 2;
 const int LARGE_FONT = 3;
 const int TITLE_FONT = 4;
 
-// ************************************************************
-//      Should all these variables even be stored here?
-//
-
 //Dimensions of player
 const int PLAYER_WIDTH = 100;
 const int PLAYER_HEIGHT = 70;
@@ -105,6 +108,11 @@ const float WALL_WIDTH = SCREEN_WIDTH/34; //30;
 const float LEVEL_SPEED_FACTOR = 3; //CHECK: THIS VALUE SHOULD NOT BE ARBITRARY?
 const float LEVEL_PADDING = PLAYER_HEIGHT*1.5;
 const int DEFAULT_LEVEL_SPEED = 350;
+
+//Generation constants
+const int OPTION_AMPLITUDE = 0;
+const int OPTION_FREQUENCY = 1;
+const int OPTION_ENERGY    = 2;
 // ************************************************************
 
 //Color attributes
