@@ -9,11 +9,6 @@
 #ifndef Fever_Global_h
 #define Fever_Global_h
 
-//#include <string>
-//#include <iostream>
-//#include <sstream>
-//#include <iomanip>
-
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
@@ -32,6 +27,8 @@
 #define RESOURCE_NOTE2          "Note2_2.png"
 #define RESOURCE_NOTE3          "Note3_2.png"
 #define RESOURCE_CLEF           "TrebleClef_2.png"
+#define RESOURCE_LEFT_ARROW     "LeftArrow.png"
+#define RESOURCE_RIGHT_ARROW    "RightArrow.png"
 
 #define LEVEL_PATH              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/"
 #define LEVEL_EXTENSION         ".lvl"
@@ -49,7 +46,7 @@
 #define FORMATS_LEVEL           "lvl"
 
 //Debugging variables
-const bool MATLAB_ON = true;
+const bool MATLAB_ON = false;
 
 // ************************************************************
 //      Should all these variables even be stored here?
@@ -113,6 +110,10 @@ const int DEFAULT_LEVEL_SPEED = 350;
 const int OPTION_AMPLITUDE = 0;
 const int OPTION_FREQUENCY = 1;
 const int OPTION_ENERGY    = 2;
+
+//High score constants
+const int SCORES_PER_SCREEN = 15;
+
 // ************************************************************
 
 //Color attributes

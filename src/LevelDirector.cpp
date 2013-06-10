@@ -39,9 +39,10 @@ LevelDirector::LevelDirector(const std::string &pFilepath, SDL_Surface* pScreen)
     
     //Initialise things specific to the level being played:
     m_filepath.assign(pFilepath);
+    m_levelname.assign(Path::NameFromPath(m_filepath));
     
     std::ifstream lvlfile;
-    lvlfile.open( m_filepath.c_str() );
+    lvlfile.open( m_filepath.c_str());
 
     lvlfile >> m_songpath;
     lvlfile >> m_signature;
@@ -281,7 +282,7 @@ bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, Note
     
     rEffects.Render( m_pScreen );
     
-    m_pSceneManager->RenderInLevel( m_pScreen );
+    m_pSceneManager->RenderInLevel( m_pScreen, m_levelname );
     
     rFloor.Render( m_pScreen, rCamera );
     
@@ -305,9 +306,9 @@ void LevelDirector::PauseGame( bool& game, bool& playing )
     Mix_PauseMusic();
 	
 	//Write pause on the screen
-	ms_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPause->w)/2, (SCREEN_HEIGHT - m_pPause->h)/2, m_pPause, m_pScreen );
-	if( SDL_Flip( m_pScreen ) == -1 )
-		exit(1);
+//	ms_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPause->w)/2, (SCREEN_HEIGHT - m_pPause->h)/2, m_pPause, m_pScreen );
+//	if( SDL_Flip( m_pScreen ) == -1 )
+//		exit(1);
 	
 	//Set pauseEventFilter
 	SDL_SetEventFilter(PauseEventFilter);
@@ -348,7 +349,7 @@ bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor,
     
     std::map<std::string,int> scores = ScoresToMap();
     int previousScore = 0;
-    std::string songName = Path::NameFromPath(m_filepath);
+    std::string songName = m_levelname; //Path::NameFromPath(m_filepath);
     if ( scores.find(songName) != scores.end() )
     {
         previousScore = scores.at(songName);

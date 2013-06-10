@@ -15,9 +15,9 @@ const float CAMERA_LOWER = 2/3.f;
 Camera::Camera()
 {
     m_x = 0; //UNUSED
-    m_y = 0;
+    m_y = -SCREEN_HEIGHT/2;
     m_w = SCREEN_WIDTH; //UNUSED
-    m_h = SCREEN_HEIGHT; //UNUSED
+    m_h = SCREEN_HEIGHT;
 }
 
 bool Camera::Update(float dt, Point playerPos)

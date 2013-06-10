@@ -17,7 +17,8 @@ const int LOAD_LEVEL  = 0;
 const int PLAY_LEVEL  = 1;
 const int GEN_LEVEL   = 2;
 const int HIGH_SCORES = 3;
-const int NUM_OPTIONS = 4;
+const int NUM_MENU_OPTIONS = 4;
+const int NUM_GEN_OPTIONS = 3;
 
 Global* MenuDirector::ms_pGlobal(0);
 std::string MenuDirector::ms_spath;
@@ -38,6 +39,9 @@ MenuDirector::MenuDirector( SDL_Surface* pScreen )
     
     m_menuOption = LOAD_LEVEL;
     m_displayScores = false;
+    
+    m_currScoreScreen = 0;
+    m_totalScoreScreens = CalcTotalScoreScreens();
 
     m_loadedLevel.assign( LEVEL_NOT_LOADED );
     ms_spath.assign( LEVEL_NOT_LOADED );
@@ -77,6 +81,13 @@ bool MenuDirector::Run( std::string* pLvlname )
         {
             if ( m_event.type == SDL_KEYDOWN && m_event.key.keysym.sym == SDLK_ESCAPE )
                 m_displayScores = false;
+            
+            if( m_event.key.keysym.sym == SDLK_LEFT)
+                m_currScoreScreen = ((m_currScoreScreen-1 % m_totalScoreScreens) + m_totalScoreScreens) % m_totalScoreScreens;
+            
+            if( m_event.key.keysym.sym == SDLK_RIGHT)
+                m_currScoreScreen = ((m_currScoreScreen+1 % m_totalScoreScreens) + m_totalScoreScreens) % m_totalScoreScreens;
+            
         }
         else
         {
@@ -87,10 +98,10 @@ bool MenuDirector::Run( std::string* pLvlname )
             }
         
             if( m_event.key.keysym.sym == SDLK_UP)
-                m_menuOption = ((m_menuOption-1 % NUM_OPTIONS) + NUM_OPTIONS) % NUM_OPTIONS;
+                m_menuOption = ((m_menuOption-1 % NUM_MENU_OPTIONS) + NUM_MENU_OPTIONS) % NUM_MENU_OPTIONS;
             
             if( m_event.key.keysym.sym == SDLK_DOWN)
-                m_menuOption = ((m_menuOption+1 % NUM_OPTIONS) + NUM_OPTIONS) % NUM_OPTIONS;
+                m_menuOption = ((m_menuOption+1 % NUM_MENU_OPTIONS) + NUM_MENU_OPTIONS) % NUM_MENU_OPTIONS;
             
             if( m_event.key.keysym.sym == SDLK_RETURN)
                 loop = HandleOption();
@@ -98,7 +109,7 @@ bool MenuDirector::Run( std::string* pLvlname )
         
         
         if (m_displayScores)
-            m_pSceneManager->RenderInScores( m_pScreen );
+            m_pSceneManager->RenderInScores( m_pScreen, m_currScoreScreen, m_totalScoreScreens );
         else
             m_pSceneManager->RenderInMainMenu( m_pScreen, m_menuOption );
 	}
@@ -113,7 +124,9 @@ bool MenuDirector::Run( std::string* pLvlname )
 int MenuDirector::MainMenuEventFilter( const SDL_Event *pEvent )
 {
 	if( (pEvent->type == SDL_KEYDOWN  && 
-         (pEvent->key.keysym.sym == SDLK_RETURN || pEvent->key.keysym.sym == SDLK_UP || pEvent->key.keysym.sym == SDLK_DOWN))
+         (pEvent->key.keysym.sym == SDLK_RETURN
+         || pEvent->key.keysym.sym == SDLK_UP   || pEvent->key.keysym.sym == SDLK_DOWN
+         || pEvent->key.keysym.sym == SDLK_LEFT || pEvent->key.keysym.sym == SDLK_RIGHT))
          || pEvent->type == SDL_QUIT || pEvent->key.keysym.sym == SDLK_ESCAPE )
 		return 1;
     
@@ -210,18 +223,43 @@ bool MenuDirector::GenLevel()
 
 
 bool MenuDirector::HandleGenOption()
-{
-    //TODO: NEED TO GIVE THE PLAYER THE OPTION HERE
-    //   -> BRING UP A LITTLE OPTIONS SCREEN AND WHILE LOOP
+{	
+    bool ret = true;
     
-    ms_genOption = OPTION_FREQUENCY;
+    ms_genOption = OPTION_AMPLITUDE;
+    m_pSceneManager->RenderInGenOptions( m_pScreen, ms_genOption );
+	
+	while ( true )
+	{
+        SDL_WaitEvent( &m_event );
+        
+		if( m_event.type == SDL_QUIT ||  (m_event.type == SDL_KEYDOWN && m_event.key.keysym.sym == SDLK_ESCAPE ) )
+        {
+            ret = false;
+            break;
+        }
+            
+        if( m_event.key.keysym.sym == SDLK_UP)
+            ms_genOption = ((ms_genOption-1 % NUM_GEN_OPTIONS) + NUM_GEN_OPTIONS) % NUM_GEN_OPTIONS;
+            
+        if( m_event.key.keysym.sym == SDLK_DOWN)
+            ms_genOption = ((ms_genOption+1 % NUM_GEN_OPTIONS) + NUM_GEN_OPTIONS) % NUM_GEN_OPTIONS;
+            
+        if( m_event.key.keysym.sym == SDLK_RETURN)
+        {
+            break;
+        }
+        
+        m_pSceneManager->RenderInGenOptions( m_pScreen, ms_genOption );
+	}
     
-    return true;
+    return ret;
 }
 
 bool MenuDirector::HighScores()
 {
     m_displayScores = true;
+    m_totalScoreScreens = CalcTotalScoreScreens();
     printf("Selected HighScores!\n");
     
     return true;
@@ -229,6 +267,29 @@ bool MenuDirector::HighScores()
 
 #pragma mark -
 #pragma mark Helper
+
+int MenuDirector::CalcTotalScoreScreens()
+{
+    std::ifstream scoresFile;
+    scoresFile.open( LEVEL_SCORES );
+    
+    scoresFile.seekg(0, scoresFile.end);
+    int length = (int) scoresFile.tellg();
+    scoresFile.seekg(0, scoresFile.beg);
+    
+    int numEntries = 0;
+    while (scoresFile.tellg() != length)
+    {
+        std::string levelAndScore;
+        std::getline(scoresFile, levelAndScore);
+        numEntries++;
+    }
+    
+    int ret = numEntries/SCORES_PER_SCREEN;
+    if ( numEntries%SCORES_PER_SCREEN != 0 ) ret++;
+    
+    return ret;
+}
 
 void MenuDirector::Generate()
 {

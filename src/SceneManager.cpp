@@ -88,6 +88,24 @@ SceneManager::SceneManager()
 		exit(1);
 	}
     
+    m_pAmplitudeText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), LEVEL_AMPLITUDE , m_pGlobal->GetColor( WHITE_COLOUR ) );
+	if( m_pAmplitudeText == NULL ){
+		printf( "Could not render temp text: %s\n", TTF_GetError() );
+		exit(1);
+	}
+    
+    m_pFrequencyText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), LEVEL_FREQUENCY, m_pGlobal->GetColor( WHITE_COLOUR ) );
+	if( m_pFrequencyText == NULL ){
+		printf( "Could not render temp text: %s\n", TTF_GetError() );
+		exit(1);
+	}
+    
+    m_pEnergyText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), LEVEL_ENERGY , m_pGlobal->GetColor( WHITE_COLOUR ) );
+	if( m_pEnergyText == NULL ){
+		printf( "Could not render temp text: %s\n", TTF_GetError() );
+		exit(1);
+	}
+    
     m_pTempText = TTF_RenderText_Blended( m_pGlobal->GetFont( TINY_FONT ), "EMPTY" , m_pGlobal->GetColor( WHITE_COLOUR ) );
 	if( m_pTempText == NULL ){
 		printf( "Could not render temp text: %s\n", TTF_GetError() );
@@ -95,6 +113,8 @@ SceneManager::SceneManager()
 	}
     
     m_pPlayer = Global::SharedGlobal()->LoadImage( RESOURCE_PLAYER );
+    m_pLeftArrow = Global::SharedGlobal()->LoadImage( RESOURCE_LEFT_ARROW );
+    m_pRightArrow = Global::SharedGlobal()->LoadImage( RESOURCE_RIGHT_ARROW );
 }
 
 #pragma mark -
@@ -170,9 +190,9 @@ void SceneManager::UpdateScore( int sc )
 // -- too many magic numbers in this function?
 void SceneManager::RenderInMainMenu( SDL_Surface* pScreen, int option )
 {
-//        Uint32 menuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
-    Uint32 menuColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
-    SDL_FillRect( pScreen, NULL , menuColour );
+//        Uint32 mainMenuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+    Uint32 mainMenuColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
+    SDL_FillRect( pScreen, NULL , mainMenuColour );
 	
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFeverText->w)/2,    (SCREEN_HEIGHT - m_pFeverText->h)/2 - 100,  m_pFeverText,   pScreen );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pLoadText->w)/2,     (SCREEN_HEIGHT - m_pLoadText->h )/2 + 50,   m_pLoadText,    pScreen );
@@ -186,13 +206,36 @@ void SceneManager::RenderInMainMenu( SDL_Surface* pScreen, int option )
 		exit(1);
 }
 
-// Renders the background for in-game
-void SceneManager::RenderInLevel( SDL_Surface* pScreen )
+void SceneManager::RenderInGenOptions( SDL_Surface* pScreen, int option )
 {
-    //Render the frame rate and score
+//        Uint32 genMenuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+    Uint32 genMenuColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
+    SDL_FillRect( pScreen, NULL , genMenuColour );
+	
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pAmplitudeText->w)/2,  (SCREEN_HEIGHT - m_pAmplitudeText->h)/2 - 100, m_pAmplitudeText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFrequencyText->w)/2,  (SCREEN_HEIGHT - m_pFrequencyText->h )/2,      m_pFrequencyText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pEnergyText->w)/2,     (SCREEN_HEIGHT - m_pEnergyText->h )/2 + 100,   m_pEnergyText,    pScreen );
+    
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pAmplitudeText->w)/2 - 120, (SCREEN_HEIGHT - m_pPlayer->h)/2 + (option-1)*100 , m_pPlayer, pScreen );
+	
+    if( SDL_Flip( pScreen ) == -1 )
+		exit(1);
+}
+
+// Renders the background for in-game
+void SceneManager::RenderInLevel( SDL_Surface* pScreen, std::string levelName )
+{
+    //Render the multiplier and score
     m_pGlobal->ApplySurface( 10, 0, m_pMult, pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, 0, m_pFrames, pScreen );
     m_pGlobal->ApplySurface(  SCREEN_WIDTH - m_pScore->w - 10, 0, m_pScore, pScreen );
+    
+    //Render the frame rate
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, m_pFrames->h, m_pFrames, pScreen );
+    
+    //Level name
+    SDL_FreeSurface( m_pTempText );
+	m_pTempText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), levelName.c_str(), m_pGlobal->GetColor( WHITE_COLOUR ) );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pTempText->w)/2, 0, m_pTempText, pScreen );
     
     //Render the mute icon if necessary
     if ( m_pGlobal->IsMuted() ) 
@@ -202,7 +245,7 @@ void SceneManager::RenderInLevel( SDL_Surface* pScreen )
 }
 
 // Renders the scores screen
-void SceneManager::RenderInScores( SDL_Surface* pScreen )
+void SceneManager::RenderInScores( SDL_Surface* pScreen, int currScreen, int totalScreens )
 {
 //    Uint32 scoresColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
     Uint32 scoresColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
@@ -217,8 +260,16 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen )
     int length = (int) scoresFile.tellg();
     scoresFile.seekg(0, scoresFile.beg);
     
+    //Skip over a certain number of scores
+    for ( int i = 0; i < currScreen*SCORES_PER_SCREEN; i++)
+    {
+        std::string levelAndScore;
+        std::getline(scoresFile, levelAndScore);
+    }
+    
+    //Print high scores on this page
     int textPos = 2.5 * m_pHighScoreText->h;
-    while ( scoresFile.tellg() != length && textPos < SCREEN_HEIGHT )
+    for ( int i = 0;  i < SCORES_PER_SCREEN && scoresFile.tellg() != length; i++)
     {
         std::string levelAndScore;
         std::getline(scoresFile, levelAndScore);
@@ -229,6 +280,14 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen )
         
         textPos += m_pTempText->h;
     }
+    
+    //Display Arrows
+    if (totalScreens > 1)
+    {
+        m_pGlobal->ApplySurface( m_pRightArrow->w*0.5, (SCREEN_HEIGHT - m_pLeftArrow->h)/2, m_pLeftArrow , pScreen );
+        m_pGlobal->ApplySurface( SCREEN_WIDTH - m_pLeftArrow->w*1.5, (SCREEN_HEIGHT - m_pRightArrow->h)/2, m_pRightArrow, pScreen );
+    }
+    
     
     if( SDL_Flip( pScreen ) == -1 )
 		exit(1);

@@ -16,10 +16,9 @@
 
 
 //TODO:
-// -> Give different forms of level generation option.
-// -> Expand the High Scores menu to show all scores.
-// -> Change game ICN to have Mozart instead.
-// -> Display level name at the top?
+// -> Expand the High Scores menu to show all scores.   /* IDEA STORE WHICH OPTION YOU USED TO GET HIGH SCORE WITH*/
+// -> IDEA: CHANGE INITIAL BACKGROUND CHANNEL BASED ON OPTION CHOSEN
+// -> Change game icon to have Mozart instead.
 // -> Add the final fantasy scrolling sounds, for when the player scrolls on the menu!
 // -> Add general UI sounds - this will require MUTE to be available in the menu as well!
 // -> Add "New Record" sound clip from smash bros when the level finishes and you get a new record!

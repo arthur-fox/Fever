@@ -35,7 +35,7 @@ private:
     SceneManager* m_pSceneManager;
     SDL_Event m_event;
 	SDL_Surface* m_pScreen;
-    int m_menuOption;
+    int m_menuOption, m_currScoreScreen, m_totalScoreScreens;
     bool m_displayScores;
     std::string m_loadedLevel;
     
@@ -48,6 +48,7 @@ private:
     bool GenLevel();
     bool HandleGenOption();
     bool HighScores();
+    int CalcTotalScoreScreens();
 };
 
 #endif

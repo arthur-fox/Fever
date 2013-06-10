@@ -66,8 +66,7 @@ private:
     int m_score, m_mult;
     
     float m_signature, m_levelSpeed, m_songDuration, m_noteFreq;
-    std::string m_filepath;
-    std::string m_songpath;
+    std::string m_filepath, m_songpath, m_levelname;
     
     static int PauseEventFilter( const SDL_Event *pEvent );
     static int EndEventFilter( const SDL_Event *pEvent );
