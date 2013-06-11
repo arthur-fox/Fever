@@ -14,9 +14,7 @@
 //  C++ Standard Library = C++11
 //  IF THINGS START BREAKING SET IT BACK TO COMPILER DEFAULT
 
-
 //TODO:
-// -> Expand the High Scores menu to show all scores.   /* IDEA STORE WHICH OPTION YOU USED TO GET HIGH SCORE WITH*/
 // -> IDEA: CHANGE INITIAL BACKGROUND CHANNEL BASED ON OPTION CHOSEN
 // -> Change game icon to have Mozart instead.
 // -> Add the final fantasy scrolling sounds, for when the player scrolls on the menu!

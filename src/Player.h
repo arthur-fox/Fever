@@ -18,7 +18,7 @@ class Player : public GameObject
 {
 public:
     
-	Player( Floor* pFloor, float levelSpeed );
+	Player( float levelSpeed, Floor* pFloor );
     ~Player();
     
 	void HandleInput( float dt );
@@ -33,6 +33,7 @@ private:
 	//jump, walk and gravity - all in terms of pixels
 	int m_jump, m_gravity, m_walk;
     
+    float m_levelSpeed; //COMPLETELY UNUSED
     Floor* m_pFloor;
 };
 

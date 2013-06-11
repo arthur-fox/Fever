@@ -74,12 +74,12 @@ bool LevelDirector::Run()
 	int framesPassed = 0;
     
     Floor floor = Floor( m_filepath );
-    Player player = Player( &floor, m_levelSpeed);
+    Player player = Player( m_levelSpeed, &floor );
     Camera camera = Camera();
     
     NoteManager notes = NoteManager( m_levelSpeed, m_noteFreq, SCREEN_WIDTH, floor.GetLastHeight(), &floor );
-    ColourManager colours = ColourManager(m_levelSpeed);
-    EffectsManager effects = EffectsManager(m_levelSpeed);
+    ColourManager colours = ColourManager( m_levelSpeed, &floor );
+    EffectsManager effects = EffectsManager( m_levelSpeed );
     
 	/** LOOP **/
     
@@ -306,9 +306,9 @@ void LevelDirector::PauseGame( bool& game, bool& playing )
     Mix_PauseMusic();
 	
 	//Write pause on the screen
-//	ms_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPause->w)/2, (SCREEN_HEIGHT - m_pPause->h)/2, m_pPause, m_pScreen );
-//	if( SDL_Flip( m_pScreen ) == -1 )
-//		exit(1);
+	ms_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPause->w)/2, (SCREEN_HEIGHT - m_pPause->h)/2, m_pPause, m_pScreen );
+	if( SDL_Flip( m_pScreen ) == -1 )
+		exit(1);
 	
 	//Set pauseEventFilter
 	SDL_SetEventFilter(PauseEventFilter);
@@ -349,7 +349,7 @@ bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor,
     
     std::map<std::string,int> scores = ScoresToMap();
     int previousScore = 0;
-    std::string songName = m_levelname; //Path::NameFromPath(m_filepath);
+    std::string songName = m_levelname; //Path::NameFromPath(m_filepath); /*IF WE USE FILEPATH THEN SAVED RESULT DOES NOT KNOW IF AMPLITUDE, FREQ OR ENERGY*/
     if ( scores.find(songName) != scores.end() )
     {
         previousScore = scores.at(songName);

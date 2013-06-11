@@ -8,23 +8,27 @@
 
 #include "ColourManager.h"
 
-const int INIT_COLOUR = 120;
+const int INIT_COLOUR = 150;
 const int SPEED_DAMPENING = 2;
 const int UP_CHANGE_FACTOR = 5000;
 const int BASE_TEMPO = 50;
 
 // TODO: CHANGE THESE BOUNDARIES BASED ON SOME CRITERIA?
-const int UPPER_COLOUR = 220;
-const int LOWER_COLOUR = 35;
+const int UPPER_COLOUR = 180;//220;
+const int LOWER_COLOUR = 70;//35;
 const int COLOUR_BAND_WIDTH = 5;    // DECREASE makes variation in background colour LARGER
 
-ColourManager::ColourManager(float levelSpeed)
+ColourManager::ColourManager(float levelSpeed, Floor* pFloor)
 {
     m_levelSpeed = levelSpeed/ SPEED_DAMPENING;
+    m_pFloor = pFloor;
     m_necessaryUpChanges = UP_CHANGE_FACTOR / levelSpeed;
     
+//    float val = levelSpeed - 240;
+//    val/= 300;
+    
     m_pColours = new Colour[SCREEN_WIDTH];
-    m_currColour = Colour(INIT_COLOUR);
+    m_currColour =  Colour(INIT_COLOUR); // Colour( val*255, 0, (1-val)*255 );
     m_primaryUp = m_secondaryUp = true;
     m_dtColour = 0;
     m_numUpChanged = 0;
@@ -54,7 +58,7 @@ ColourManager::~ColourManager()
 //NOTE: This algorithm is very hacky/messy
 //      I basically try to fluctuate ALL Channels using primaryUp
 //      and fluctuate one seperate channel using secondaryUp
-//FIX: STILL need to make this relate to the song!!!
+//      OR use dynamic blue/red colour idea
 bool ColourManager::Update( float dt )
 {
     Colour tempCol = m_currColour;
@@ -63,18 +67,18 @@ bool ColourManager::Update( float dt )
     for ( int i = 0; i < SCREEN_WIDTH; i++ )
     {
         if (i % COLOUR_BAND_WIDTH == 0)
-            UpdateColour(tempCol, tempUp, COLOUR_ALL);
+            UpdateColour(tempCol, tempUp, COLOUR_ALL, 1);
         
         m_pColours[i] = tempCol;
     }
     
     // Set colour, channel and both up variables correctly for next loop
-    m_dtColour += (m_levelSpeed * dt/1000.f);
+    m_dtColour += (m_levelSpeed/LEVEL_SPEED_FACTOR * dt/1000.f);
     if (m_dtColour > 2) //Gurantees we don't screw the UP variables
     {
         //Updating Primary vars
-        int next_colour = m_dtColour*COLOUR_BAND_WIDTH;
-        if ( m_currColour <= m_pColours[next_colour] )
+        int nextColour = m_dtColour*COLOUR_BAND_WIDTH;
+        if ( m_currColour <= m_pColours[nextColour] )
         {
             m_primaryUp = true;
         }
@@ -84,27 +88,52 @@ bool ColourManager::Update( float dt )
         }
         
         m_dtColour = 0;
-        m_currColour = m_pColours[next_colour];
+        m_currColour = m_pColours[nextColour];
         
         
-        //Updating Secondary vars
-        bool newSecondaryUp = m_secondaryUp;
-        UpdateColour(m_currColour, newSecondaryUp, m_currChannel);
-        
-        if (newSecondaryUp != m_secondaryUp)
+        //Dynamic blue and red colours! - comment this section to disable Blue/Red colours
+        if ( abs(m_pFloor->GetHeight() - m_pFloor->GetNextHeight()) > 3)
         {
-            m_numUpChanged++;
-            UpdateChannel(m_currChannel);
+            if ( abs(m_currColour.GetR() - m_currColour.GetB()) < 40 )
+            {
+                m_currColour.Inc(COLOUR_RED);
+            }
+            
+            if (m_currColour.GetB() > m_currColour.GetG())
+            {
+                m_currColour.Dec(COLOUR_BLUE);
+            }
+        }
+        else
+        {
+            if ( abs(m_currColour.GetR() - m_currColour.GetB()) < 40 )
+            {
+                m_currColour.Inc(COLOUR_BLUE);
+            }
+            
+            if (m_currColour.GetR() > m_currColour.GetG())
+            {
+                m_currColour.Dec(COLOUR_RED);
+            }
         }
         
-        m_secondaryUp = newSecondaryUp;
+        //Updating Secondary vars - comment this section to disable secondary colours
+//        bool newSecondaryUp = m_secondaryUp;
+//        UpdateColour(m_currColour, newSecondaryUp, m_currChannel, 1);
+//        if (newSecondaryUp != m_secondaryUp)
+//        {
+//            m_numUpChanged++;
+//            UpdateChannel(m_currChannel);
+//        }
+//        m_secondaryUp = newSecondaryUp;
+        
     }
     
     return true;
 }
 
 //Update colour according to UP flag
-void ColourManager::UpdateColour( Colour &rColour, bool &rUp, int col )
+void ColourManager::UpdateColour( Colour &rColour, bool &rUp, int col, int qty )
 {
     rUp ? rColour.Inc(col): rColour.Dec(col);
     
@@ -166,6 +195,7 @@ void ColourManager::Render( SDL_Surface* pScreen )
         memcpy(pPixelData+j*SCREEN_WIDTH, scanline, SCREEN_WIDTH*pixelSize);
     }
     SDL_UnlockSurface(pScreen);
+    
 }
 
 // Colour the background

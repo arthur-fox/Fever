@@ -37,14 +37,16 @@ public:
     //      Also completely ignore ALPHA channel!
     friend bool operator>= (const Colour& lhs, const int& val   );
     friend bool operator<= (const Colour& lhs, const int& val   );
+    friend bool operator== (const Colour& lhs, const int& val   );
     friend bool operator>= (const Colour& lhs, const Colour& rhs);
     friend bool operator<= (const Colour& lhs, const Colour& rhs);
+    friend bool operator== (const Colour& lhs, const Colour& rhs);
     
     Colour& operator+=(const int& rhs);
     Colour& operator-=(const int& rhs);
     
-    void Inc(int colour);
-    void Dec(int colour);
+    void Inc(int colour, int qty = 1);
+    void Dec(int colour, int qty = 1);
     
 private:
     

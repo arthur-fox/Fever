@@ -12,13 +12,14 @@
 #include <iostream>
 #include "Global.h"
 #include "Colour.h"
+#include "Floor.h"
 
 //ColourManager class takes care of updating the background colour values in a level
 class ColourManager
 {
 public:
     
-    ColourManager(float levelSpeed);
+    ColourManager(float levelSpeed, Floor* pFloor);
     ~ColourManager();
     
     bool Update( float dt );
@@ -27,6 +28,7 @@ public:
 private:
     
     float m_levelSpeed;
+    Floor* m_pFloor;
     
     Colour* m_pColours; // MAKE INTO VECTOR??
     Colour m_currColour;
@@ -35,7 +37,7 @@ private:
     int m_numUpChanged, m_necessaryUpChanges, m_currChannel;
     bool m_availableChannels[NUM_COLOUR_CHANNELS];
     
-    void UpdateColour( Colour &rColour, bool &rUp, int col );
+    void UpdateColour( Colour &rColour, bool &rUp, int col, int qty );
     void UpdateChannel(int &currChannel);
 };
 

@@ -288,7 +288,6 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen, int currScreen, int tot
         m_pGlobal->ApplySurface( SCREEN_WIDTH - m_pLeftArrow->w*1.5, (SCREEN_HEIGHT - m_pRightArrow->h)/2, m_pRightArrow, pScreen );
     }
     
-    
     if( SDL_Flip( pScreen ) == -1 )
 		exit(1);
 }
