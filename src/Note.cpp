@@ -15,7 +15,7 @@ SDL_Surface *Note::ms_pNoteImg2(0);
 SDL_Surface *Note::ms_pNoteImg3(0);
 SDL_Surface *Note::ms_pClefImg(0);
 
-const int NOTE_TYPES = 3; // 3 - Ignoring Clef
+const int NOTE_TYPES = 3;// Ignoring Clef
 const float NOTE_DANCE_FACTOR = 2.5;
 
 #pragma mark -
@@ -63,6 +63,7 @@ Note::~Note()
 //Initialise all the static surfaces for the different types of platforms
 void Note::InitNoteImages()
 {
+//    ms_pNoteImg1 = Global::SharedGlobal()->LoadImage( RESOURCE_COIN );
     ms_pNoteImg1 = Global::SharedGlobal()->LoadImage( RESOURCE_NOTE1 );
     ms_pNoteImg2 = Global::SharedGlobal()->LoadImage( RESOURCE_NOTE2 );
     ms_pNoteImg3 = Global::SharedGlobal()->LoadImage( RESOURCE_NOTE3 );

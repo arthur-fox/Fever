@@ -15,7 +15,7 @@
 //  IF THINGS START BREAKING SET IT BACK TO COMPILER DEFAULT
 
 //TODO:
-// -> IDEA: CHANGE INITIAL BACKGROUND CHANNEL BASED ON OPTION CHOSEN
+// -> Make background have parallax effect!
 // -> Change game icon to have Mozart instead.
 // -> Add the final fantasy scrolling sounds, for when the player scrolls on the menu!
 // -> Add general UI sounds - this will require MUTE to be available in the menu as well!

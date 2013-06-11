@@ -38,6 +38,8 @@ void Global::Initialisation()
     InitFontsColors();
     InitMusic();
     if (MATLAB_ON) InitMatlab();
+    
+    m_dispFPS = false;
 }
 
 void Global::CleanUp()

@@ -40,7 +40,7 @@ private:
 	SDL_Surface *m_pFrames, *m_pScore, *m_pMult, *m_pPlayer, *m_pMutedIcon, *m_pFeverText, 
                 *m_pLoadText, *m_pPlayText, *m_pGenText, *m_pHighScoreText, *m_pShowScoreText,
                 *m_pPrevScoreText, *m_pTempText, *m_pAmplitudeText, *m_pFrequencyText, *m_pEnergyText,
-                *m_pLeftArrow, *m_pRightArrow;
+                *m_pLeftArrow, *m_pRightArrow, *m_pBackground;
     
     void UpdateLevel(float dt);
     void UpdateFrameRate(float fps);

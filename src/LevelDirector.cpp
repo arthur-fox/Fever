@@ -119,6 +119,11 @@ bool LevelDirector::Run()
                     Mix_VolumeMusic(128);
 			}
             
+            else if( m_event.type == SDL_KEYDOWN && m_event.key.keysym.sym == SDLK_f)
+            {
+                ms_pGlobal->DisplayFPS( !ms_pGlobal->IsFPS() );
+			}
+            
             else if( m_event.type == SDL_KEYDOWN && m_event.key.keysym.sym == SDLK_ESCAPE )
             {
                 game = true;
@@ -244,8 +249,7 @@ bool LevelDirector::UpdateGame(Camera& rCamera, Player& rPlayer, Floor& rFloor, 
     
     rEffects.Update( dt );
     
-    if (!rEffects.IsPlayingFlash())
-        rColours.Update( dt );
+    rColours.Update( dt );
     
     return result;
 }
@@ -277,7 +281,7 @@ bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, Note
 {
     bool result = true;
     
-    if (!rEffects.IsPlayingFlash())
+//    if (!rEffects.IsPlayingFlash())
         rColours.Render( m_pScreen );
     
     rEffects.Render( m_pScreen );
@@ -370,7 +374,7 @@ bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor,
         if( SDL_Flip( m_pScreen ) == -1 )
             exit(1);
         
-        SDL_Delay( ( 1000 / (3*FRAMES_PER_SECOND) ));
+        SDL_Delay( ( 1000 / (5*FRAMES_PER_SECOND) ));
     }
     
     UpdateHighScores();

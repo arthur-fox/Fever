@@ -29,6 +29,7 @@
 #define RESOURCE_CLEF           "TrebleClef_2.png"
 #define RESOURCE_LEFT_ARROW     "LeftArrow.png"
 #define RESOURCE_RIGHT_ARROW    "RightArrow.png"
+#define RESOURCE_BACKGROUND     "TransparentBackground.png"
 
 #define LEVEL_PATH              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/"
 #define LEVEL_EXTENSION         ".lvl"
@@ -49,8 +50,6 @@
 const bool MATLAB_ON = false;
 
 // ************************************************************
-//      Should all these variables even be stored here?
-//
 
 //Update attributes
 const bool VARIABLE_TIME_STEP = true;
@@ -60,9 +59,9 @@ const int LIMIT_UPDATES = 3;
 const float FIXED_TIME_STEP = 1000.0f/UPDATES_PER_SECOND;
 
 //Screen attributes
-const int SCREEN_WIDTH = 1024;
-const int SCREEN_HEIGHT = 576;
-const int SCREEN_BPP = 32;
+const int SCREEN_WIDTH = 1024;//*1.8;
+const int SCREEN_HEIGHT = 576;//*1.45;
+const int SCREEN_BPP = 0;//32;
 
 //The dimensions of the level 
 const int LEVEL_WIDTH = SCREEN_WIDTH; //WRONG! - THIS VARIES BETWEEN SONGS!
@@ -102,7 +101,7 @@ const int INIT_MULT = 1;
 
 //Level constants
 const float WALL_WIDTH = SCREEN_WIDTH/34; //30;
-const float LEVEL_SPEED_FACTOR = 3; //CHECK: THIS VALUE SHOULD NOT BE ARBITRARY?
+const float LEVEL_SPEED_FACTOR = 4; //3
 const float LEVEL_PADDING = PLAYER_HEIGHT*1.5;
 const int DEFAULT_LEVEL_SPEED = 350;
 
@@ -133,6 +132,8 @@ public:
     //Inline functions
     inline bool IsMuted() const                     {return m_muted;}
     inline void MuteUnMute()                        {m_muted = !m_muted;}
+    inline bool IsFPS() const                       {return m_dispFPS;}
+    inline void DisplayFPS(bool fps)                {m_dispFPS = fps;}
     
     void Initialisation();
     void CleanUp();
@@ -157,7 +158,7 @@ private:
     Engine *m_pMateng;
     TTF_Font  *m_pTinyFont, *m_pSmallFont, *m_pMediumFont, *m_pLargeFont, *m_pTitleFont;
     SDL_Color m_whiteColour;
-    bool m_muted;
+    bool m_muted, m_dispFPS;
     
     //Private Functions
 	Global();    

@@ -64,7 +64,7 @@ SceneManager::SceneManager()
 		exit(1);
 	}
 	
-	m_pPrevScoreText = TTF_RenderText_Solid( m_pGlobal->GetFont(SMALL_FONT), "PREVIOUS SCORE:" , m_pGlobal->GetColor( WHITE_COLOUR ) );
+	m_pPrevScoreText = TTF_RenderText_Solid( m_pGlobal->GetFont(SMALL_FONT), "HIGH SCORE:" , m_pGlobal->GetColor( WHITE_COLOUR ) );
 	if( m_pPrevScoreText == NULL ){
 		printf("Could not render try again: %s\n", TTF_GetError());
 		exit(1);
@@ -115,6 +115,7 @@ SceneManager::SceneManager()
     m_pPlayer = Global::SharedGlobal()->LoadImage( RESOURCE_PLAYER );
     m_pLeftArrow = Global::SharedGlobal()->LoadImage( RESOURCE_LEFT_ARROW );
     m_pRightArrow = Global::SharedGlobal()->LoadImage( RESOURCE_RIGHT_ARROW );
+    m_pBackground = Global::SharedGlobal()->LoadImage( RESOURCE_BACKGROUND );
 }
 
 #pragma mark -
@@ -153,7 +154,7 @@ void SceneManager::ResetScene()
 void SceneManager::UpdateFrameRate( float fps )
 {
 	std::stringstream stream;
-	stream << std::setprecision(2) << fps;
+	stream << "FPS: " << std::setprecision(2) << fps;
 	std::string mystr = stream.str();
     
     SDL_FreeSurface( m_pFrames );
@@ -164,7 +165,7 @@ void SceneManager::UpdateFrameRate( float fps )
 void SceneManager::UpdateMultiplier( int mult )
 {
 	std::stringstream stream;
-	stream << "x" << mult;
+	stream << "MULT: x" << mult;
 	std::string mystr = stream.str();
     
     SDL_FreeSurface( m_pMult );
@@ -175,7 +176,7 @@ void SceneManager::UpdateMultiplier( int mult )
 void SceneManager::UpdateScore( int sc )
 {
 	std::stringstream stream;
-	stream << sc;
+	stream << "SCORE: " << sc;
 	std::string mystr = stream.str();
     
     SDL_FreeSurface( m_pScore );
@@ -190,9 +191,10 @@ void SceneManager::UpdateScore( int sc )
 // -- too many magic numbers in this function?
 void SceneManager::RenderInMainMenu( SDL_Surface* pScreen, int option )
 {
-//        Uint32 mainMenuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+//    Uint32 mainMenuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
     Uint32 mainMenuColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
     SDL_FillRect( pScreen, NULL , mainMenuColour );
+    m_pGlobal->ApplySurface(  0, 0, m_pBackground, pScreen );
 	
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFeverText->w)/2,    (SCREEN_HEIGHT - m_pFeverText->h)/2 - 100,  m_pFeverText,   pScreen );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pLoadText->w)/2,     (SCREEN_HEIGHT - m_pLoadText->h )/2 + 50,   m_pLoadText,    pScreen );
@@ -208,9 +210,10 @@ void SceneManager::RenderInMainMenu( SDL_Surface* pScreen, int option )
 
 void SceneManager::RenderInGenOptions( SDL_Surface* pScreen, int option )
 {
-//        Uint32 genMenuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
+//    Uint32 genMenuColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
     Uint32 genMenuColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
     SDL_FillRect( pScreen, NULL , genMenuColour );
+    m_pGlobal->ApplySurface(  0, 0, m_pBackground, pScreen );
 	
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pAmplitudeText->w)/2,  (SCREEN_HEIGHT - m_pAmplitudeText->h)/2 - 100, m_pAmplitudeText, pScreen );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFrequencyText->w)/2,  (SCREEN_HEIGHT - m_pFrequencyText->h )/2,      m_pFrequencyText, pScreen );
@@ -225,12 +228,15 @@ void SceneManager::RenderInGenOptions( SDL_Surface* pScreen, int option )
 // Renders the background for in-game
 void SceneManager::RenderInLevel( SDL_Surface* pScreen, std::string levelName )
 {
+    m_pGlobal->ApplySurface(  0, 0, m_pBackground, pScreen );
+    
     //Render the multiplier and score
     m_pGlobal->ApplySurface( 10, 0, m_pMult, pScreen );
     m_pGlobal->ApplySurface(  SCREEN_WIDTH - m_pScore->w - 10, 0, m_pScore, pScreen );
     
     //Render the frame rate
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, m_pFrames->h, m_pFrames, pScreen );
+    if (m_pGlobal->IsFPS())
+        m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, m_pFrames->h, m_pFrames, pScreen );
     
     //Level name
     SDL_FreeSurface( m_pTempText );
@@ -250,6 +256,7 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen, int currScreen, int tot
 //    Uint32 scoresColour = SDL_MapRGB( pScreen->format, 100, 30, 30 );
     Uint32 scoresColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
     SDL_FillRect( pScreen, NULL , scoresColour );
+    m_pGlobal->ApplySurface(  0, 0, m_pBackground, pScreen );
     
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pHighScoreText->w)/2, m_pHighScoreText->h, m_pHighScoreText, pScreen );
     
@@ -294,7 +301,9 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen, int currScreen, int tot
 
 
 void SceneManager::RenderLevelOver( SDL_Surface* pScreen )
-{    
+{
+    m_pGlobal->ApplySurface(  0, 0, m_pBackground, pScreen );
+    
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pShowScoreText->w)/2, (SCREEN_HEIGHT - m_pShowScoreText->h)/2 - 110, m_pShowScoreText, pScreen );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, (SCREEN_HEIGHT - m_pScore->h)/2 - 50, m_pScore, pScreen );
     

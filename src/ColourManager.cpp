@@ -8,14 +8,17 @@
 
 #include "ColourManager.h"
 
-const int INIT_COLOUR = 150;
+const int INIT_COLOUR = 80;
+const int MAX_COLOUR_GAP = 100;
+const int FLOOR_DIFF_THRESHOLD = 2;
+
 const int SPEED_DAMPENING = 2;
 const int UP_CHANGE_FACTOR = 5000;
 const int BASE_TEMPO = 50;
 
-// TODO: CHANGE THESE BOUNDARIES BASED ON SOME CRITERIA?
-const int UPPER_COLOUR = 180;//220;
-const int LOWER_COLOUR = 70;//35;
+// CONSTANTS FOR COLOUR VARIATIONS
+const int UPPER_COLOUR = 200;//220;
+const int LOWER_COLOUR = 50;//35;
 const int COLOUR_BAND_WIDTH = 5;    // DECREASE makes variation in background colour LARGER
 
 ColourManager::ColourManager(float levelSpeed, Floor* pFloor)
@@ -24,11 +27,8 @@ ColourManager::ColourManager(float levelSpeed, Floor* pFloor)
     m_pFloor = pFloor;
     m_necessaryUpChanges = UP_CHANGE_FACTOR / levelSpeed;
     
-//    float val = levelSpeed - 240;
-//    val/= 300;
-    
     m_pColours = new Colour[SCREEN_WIDTH];
-    m_currColour =  Colour(INIT_COLOUR); // Colour( val*255, 0, (1-val)*255 );
+    m_currColour =  Colour(INIT_COLOUR);
     m_primaryUp = m_secondaryUp = true;
     m_dtColour = 0;
     m_numUpChanged = 0;
@@ -61,40 +61,32 @@ ColourManager::~ColourManager()
 //      OR use dynamic blue/red colour idea
 bool ColourManager::Update( float dt )
 {
-    Colour tempCol = m_currColour;
-    bool tempUp = m_primaryUp;
-    
-    for ( int i = 0; i < SCREEN_WIDTH; i++ )
-    {
-        if (i % COLOUR_BAND_WIDTH == 0)
-            UpdateColour(tempCol, tempUp, COLOUR_ALL, 1);
-        
-        m_pColours[i] = tempCol;
-    }
+//    Colour tempCol = m_currColour;
+//    bool tempUp = m_primaryUp;
+//    
+//    for ( int i = 0; i < SCREEN_WIDTH; i++ )
+//    {
+//        if (i % COLOUR_BAND_WIDTH == 0)
+//            UpdateColour(tempCol, tempUp, COLOUR_ALL, 1);
+//        
+//        m_pColours[i] = tempCol;
+//    }
     
     // Set colour, channel and both up variables correctly for next loop
-    m_dtColour += (m_levelSpeed/LEVEL_SPEED_FACTOR * dt/1000.f);
+    m_dtColour += ( m_levelSpeed/(LEVEL_SPEED_FACTOR) * dt/1000.f);
     if (m_dtColour > 2) //Gurantees we don't screw the UP variables
     {
-        //Updating Primary vars
-        int nextColour = m_dtColour*COLOUR_BAND_WIDTH;
-        if ( m_currColour <= m_pColours[nextColour] )
-        {
-            m_primaryUp = true;
-        }
-        else
-        {
-            m_primaryUp = false;
-        }
-        
-        m_dtColour = 0;
-        m_currColour = m_pColours[nextColour];
+//        //Updating Primary vars
+//        int nextColour = m_dtColour*COLOUR_BAND_WIDTH;
+//        m_primaryUp = ( m_currColour <= m_pColours[nextColour] );
+//        m_dtColour = 0;
+//        m_currColour = m_pColours[nextColour];
         
         
         //Dynamic blue and red colours! - comment this section to disable Blue/Red colours
-        if ( abs(m_pFloor->GetHeight() - m_pFloor->GetNextHeight()) > 3)
+        if ( abs(m_pFloor->GetHeight() - m_pFloor->GetNextHeight()) > FLOOR_DIFF_THRESHOLD )
         {
-            if ( abs(m_currColour.GetR() - m_currColour.GetB()) < 40 )
+            if ( abs(m_currColour.GetR() - m_currColour.GetB()) < MAX_COLOUR_GAP )
             {
                 m_currColour.Inc(COLOUR_RED);
             }
@@ -106,7 +98,7 @@ bool ColourManager::Update( float dt )
         }
         else
         {
-            if ( abs(m_currColour.GetR() - m_currColour.GetB()) < 40 )
+            if ( abs(m_currColour.GetR() - m_currColour.GetB()) < MAX_COLOUR_GAP )
             {
                 m_currColour.Inc(COLOUR_BLUE);
             }
@@ -116,6 +108,7 @@ bool ColourManager::Update( float dt )
                 m_currColour.Dec(COLOUR_RED);
             }
         }
+        
         
         //Updating Secondary vars - comment this section to disable secondary colours
 //        bool newSecondaryUp = m_secondaryUp;
@@ -178,23 +171,37 @@ void ColourManager::UpdateChannel(int &currChannel)
 
 void ColourManager::Render( SDL_Surface* pScreen )
 {
-    Uint32 scanline[SCREEN_WIDTH];
+    Uint32 col = SDL_MapRGB( pScreen->format, m_currColour.GetR(), m_currColour.GetG(), m_currColour.GetB() );
+    SDL_FillRect( pScreen, NULL, col );
+    
+//    int pixelSize = sizeof(Uint32);
+//    SDL_LockSurface(pScreen);
+//    Uint32* pPixelData = static_cast<Uint32*> (pScreen->pixels);
+//    for (int i = 0; i < SCREEN_HEIGHT*SCREEN_WIDTH; i++)
+//    {
+//        memcpy( pPixelData+i, &col, pixelSize);
+//    }
+//    SDL_UnlockSurface(pScreen);
+    
+    
+
+//    Uint32 scanline[SCREEN_WIDTH];
     
     // Save pixel values for background scanline
-    for (int i = 0; i <  SCREEN_WIDTH; i++)
-    {
-        scanline[i] = SDL_MapRGB( pScreen->format, m_pColours[i].GetR(), m_pColours[i].GetG(), m_pColours[i].GetB());
-    }
-    
-    // Manually copy background pixel data over!
-    int pixelSize = sizeof(Uint32);
-    SDL_LockSurface(pScreen);
-    Uint32* pPixelData = static_cast<Uint32*> (pScreen->pixels);
-    for (int j = 0; j < SCREEN_HEIGHT; j++)
-    {
-        memcpy(pPixelData+j*SCREEN_WIDTH, scanline, SCREEN_WIDTH*pixelSize);
-    }
-    SDL_UnlockSurface(pScreen);
+//    for (int i = 0; i <  SCREEN_WIDTH; i++)
+//    {
+//        scanline[i] = SDL_MapRGB( pScreen->format, m_pColours[i].GetR(), m_pColours[i].GetG(), m_pColours[i].GetB());
+//    }
+//    
+//    // Manually copy background pixel data over!
+//    int pixelSize = sizeof(Uint32);
+//    SDL_LockSurface(pScreen);
+//    Uint32* pPixelData = static_cast<Uint32*> (pScreen->pixels);
+//    for (int j = 0; j < SCREEN_HEIGHT; j++)
+//    {
+//        memcpy(pPixelData+j*SCREEN_WIDTH, scanline, SCREEN_WIDTH*pixelSize);
+//    }
+//    SDL_UnlockSurface(pScreen);
     
 }
 

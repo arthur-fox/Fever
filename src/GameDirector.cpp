@@ -19,7 +19,7 @@ GameDirector::GameDirector()
 	SDL_WM_SetCaption(GAME_NAME, NULL );
 	m_pScreen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );
 	if ( m_pScreen == NULL ) {
-		printf( "Could not set 640x480x%d video mode: %s\n", SCREEN_BPP, SDL_GetError() );
+		printf( "Could not set %dx%dx%d video mode: %s\n", SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_GetError() );
 		SDL_Quit();
 		exit(1);
 	}
