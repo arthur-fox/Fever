@@ -36,6 +36,7 @@
 #define LEVEL_NOT_LOADED        "NULL"
 #define LEVEL_TEMP              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/TempOutput.plvl"
 #define LEVEL_SCORES            "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/Scores.sc"
+#define LEVEL_RANDOM            "Random"
 #define LEVEL_AMPLITUDE         "Amplitude"
 #define LEVEL_FREQUENCY         "Frequency"
 #define LEVEL_ENERGY            "Energy"
@@ -106,9 +107,10 @@ const float LEVEL_PADDING = PLAYER_HEIGHT*1.5;
 const int DEFAULT_LEVEL_SPEED = 350;
 
 //Generation constants
-const int OPTION_AMPLITUDE = 0;
-const int OPTION_FREQUENCY = 1;
-const int OPTION_ENERGY    = 2;
+const int OPTION_RANDOM    = 0;
+const int OPTION_AMPLITUDE = 1;
+const int OPTION_FREQUENCY = 2;
+const int OPTION_ENERGY    = 3;
 
 //High score constants
 const int SCORES_PER_SCREEN = 15;

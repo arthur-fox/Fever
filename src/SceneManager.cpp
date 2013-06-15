@@ -87,22 +87,28 @@ SceneManager::SceneManager()
 		printf( "Could not render mutedIcon: %s\n", TTF_GetError() );
 		exit(1);
 	}
+
+    m_pRandomText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), LEVEL_RANDOM , m_pGlobal->GetColor( WHITE_COLOUR ) );
+	if( m_pRandomText == NULL ){
+		printf( "Could not render random text: %s\n", TTF_GetError() );
+		exit(1);
+	}
     
     m_pAmplitudeText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), LEVEL_AMPLITUDE , m_pGlobal->GetColor( WHITE_COLOUR ) );
 	if( m_pAmplitudeText == NULL ){
-		printf( "Could not render temp text: %s\n", TTF_GetError() );
+		printf( "Could not render amplitude text: %s\n", TTF_GetError() );
 		exit(1);
 	}
     
     m_pFrequencyText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), LEVEL_FREQUENCY, m_pGlobal->GetColor( WHITE_COLOUR ) );
 	if( m_pFrequencyText == NULL ){
-		printf( "Could not render temp text: %s\n", TTF_GetError() );
+		printf( "Could not render frequency text: %s\n", TTF_GetError() );
 		exit(1);
 	}
     
     m_pEnergyText = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), LEVEL_ENERGY , m_pGlobal->GetColor( WHITE_COLOUR ) );
 	if( m_pEnergyText == NULL ){
-		printf( "Could not render temp text: %s\n", TTF_GetError() );
+		printf( "Could not render energy text: %s\n", TTF_GetError() );
 		exit(1);
 	}
     
@@ -214,12 +220,13 @@ void SceneManager::RenderInGenOptions( SDL_Surface* pScreen, int option )
     Uint32 genMenuColour = SDL_MapRGB( pScreen->format, 50, 50, 120 );
     SDL_FillRect( pScreen, NULL , genMenuColour );
     m_pGlobal->ApplySurface(  0, 0, m_pBackground, pScreen );
-	
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pAmplitudeText->w)/2,  (SCREEN_HEIGHT - m_pAmplitudeText->h)/2 - 100, m_pAmplitudeText, pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFrequencyText->w)/2,  (SCREEN_HEIGHT - m_pFrequencyText->h )/2,      m_pFrequencyText, pScreen );
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pEnergyText->w)/2,     (SCREEN_HEIGHT - m_pEnergyText->h )/2 + 100,   m_pEnergyText,    pScreen );
+
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pRandomText->w)/2,     (SCREEN_HEIGHT - m_pRandomText->h)/2 - 150,       m_pRandomText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pAmplitudeText->w)/2,  (SCREEN_HEIGHT - m_pAmplitudeText->h)/2 - 50,     m_pAmplitudeText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pFrequencyText->w)/2,  (SCREEN_HEIGHT - m_pFrequencyText->h )/2 +50,     m_pFrequencyText, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pEnergyText->w)/2,     (SCREEN_HEIGHT - m_pEnergyText->h )/2 + 150,      m_pEnergyText,    pScreen );
     
-    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pAmplitudeText->w)/2 - 120, (SCREEN_HEIGHT - m_pPlayer->h)/2 + (option-1)*100 , m_pPlayer, pScreen );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pAmplitudeText->w)/2 - 120, (SCREEN_HEIGHT - m_pPlayer->h)/2 + ((option-2)*100 + 50), m_pPlayer, pScreen );
 	
     if( SDL_Flip( pScreen ) == -1 )
 		exit(1);
@@ -300,13 +307,25 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen, int currScreen, int tot
 }
 
 
-void SceneManager::RenderLevelOver( SDL_Surface* pScreen )
+void SceneManager::RenderLevelOver( SDL_Surface* pScreen, std::string levelName, int sc )
 {
     m_pGlobal->ApplySurface(  0, 0, m_pBackground, pScreen );
     
+    //Score
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pShowScoreText->w)/2, (SCREEN_HEIGHT - m_pShowScoreText->h)/2 - 110, m_pShowScoreText, pScreen );
+    std::stringstream stream;
+	stream << sc;
+	std::string mystr = stream.str();
+    SDL_FreeSurface( m_pScore );
+	m_pScore = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), mystr.c_str(), m_pGlobal->GetColor( WHITE_COLOUR ) );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pScore->w)/2, (SCREEN_HEIGHT - m_pScore->h)/2 - 50, m_pScore, pScreen );
     
+    //High Score
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPrevScoreText->w)/2, (SCREEN_HEIGHT - m_pPrevScoreText->h)/2 + 50, m_pPrevScoreText, pScreen );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pTempText->w)/2, (SCREEN_HEIGHT - m_pTempText->h)/2 + 110, m_pTempText, pScreen );
+    
+    //Level name
+    SDL_FreeSurface( m_pMult );
+	m_pMult = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), levelName.c_str(), m_pGlobal->GetColor( WHITE_COLOUR ) );
+    m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pMult->w)/2, m_pMult->h, m_pMult, pScreen );
 }

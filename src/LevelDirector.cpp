@@ -282,7 +282,7 @@ bool LevelDirector::Render(Camera& rCamera, Player& rPlayer, Floor& rFloor, Note
     bool result = true;
     
 //    if (!rEffects.IsPlayingFlash())
-        rColours.Render( m_pScreen );
+    rColours.Render( m_pScreen );
     
     rEffects.Render( m_pScreen );
     
@@ -310,9 +310,9 @@ void LevelDirector::PauseGame( bool& game, bool& playing )
     Mix_PauseMusic();
 	
 	//Write pause on the screen
-	ms_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPause->w)/2, (SCREEN_HEIGHT - m_pPause->h)/2, m_pPause, m_pScreen );
-	if( SDL_Flip( m_pScreen ) == -1 )
-		exit(1);
+//	ms_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPause->w)/2, (SCREEN_HEIGHT - m_pPause->h)/2, m_pPause, m_pScreen );
+//	if( SDL_Flip( m_pScreen ) == -1 )
+//		exit(1);
 	
 	//Set pauseEventFilter
 	SDL_SetEventFilter(PauseEventFilter);
@@ -365,7 +365,7 @@ bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor,
     {
         rColours.Render(m_pScreen);
         
-        m_pSceneManager->RenderLevelOver( m_pScreen );
+        m_pSceneManager->RenderLevelOver( m_pScreen, m_levelname, m_score );
         
         rFloor.End(m_pScreen, rCamera);
         

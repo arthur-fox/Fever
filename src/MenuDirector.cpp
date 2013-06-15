@@ -18,7 +18,7 @@ const int PLAY_LEVEL  = 1;
 const int GEN_LEVEL   = 2;
 const int HIGH_SCORES = 3;
 const int NUM_MENU_OPTIONS = 4;
-const int NUM_GEN_OPTIONS = 3;
+const int NUM_GEN_OPTIONS = 4;
 
 Global* MenuDirector::ms_pGlobal(0);
 std::string MenuDirector::ms_spath;
@@ -195,7 +195,8 @@ bool MenuDirector::GenLevel()
                 //Appropriatley name the level based on songname and option
                 std::string songname = Path::NameFromPath( songpath );
                 std::string lvlpath = LEVEL_PATH + songname + "_";
-                if      (ms_genOption == OPTION_AMPLITUDE) lvlpath.append(LEVEL_AMPLITUDE);
+                if      (ms_genOption == OPTION_RANDOM   ) lvlpath.append(LEVEL_RANDOM   );
+                else if (ms_genOption == OPTION_AMPLITUDE) lvlpath.append(LEVEL_AMPLITUDE);
                 else if (ms_genOption == OPTION_FREQUENCY) lvlpath.append(LEVEL_FREQUENCY);
                 else if (ms_genOption == OPTION_ENERGY   ) lvlpath.append(LEVEL_ENERGY   );
                 lvlpath.append(LEVEL_EXTENSION);
@@ -226,7 +227,7 @@ bool MenuDirector::HandleGenOption()
 {	
     bool ret = true;
     
-    ms_genOption = OPTION_AMPLITUDE;
+    ms_genOption = OPTION_RANDOM;
     m_pSceneManager->RenderInGenOptions( m_pScreen, ms_genOption );
 	
 	while ( true )
@@ -301,6 +302,8 @@ void MenuDirector::Generate()
         return;
     }
     
+    Timer timeGeningLevel;
+    timeGeningLevel.Start();
     ms_pGlobal = Global::SharedGlobal();
     ms_pGlobal->SetThreadRunning( true );
     
@@ -320,4 +323,6 @@ void MenuDirector::Generate()
     }
     
     ms_pGlobal->SetThreadRunning( false );
+    printf("Time taken genning level: %dms, Gen option: %d\n", timeGeningLevel.GetTicks(), ms_genOption);
+    timeGeningLevel.Stop();
 }
