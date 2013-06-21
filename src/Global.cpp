@@ -37,14 +37,14 @@ void Global::Initialisation()
     InitSDL();
     InitFontsColors();
     InitMusic();
-    if (MATLAB_ON) InitMatlab();
+    if (!MATLAB_OFF) InitMatlab();
     
     m_dispFPS = false;
 }
 
 void Global::CleanUp()
 {
-    if (MATLAB_ON)
+    if (!MATLAB_OFF)
     {
         while ( IsThreadRunning() )
             std::this_thread::sleep_for( std::chrono::seconds(1) );

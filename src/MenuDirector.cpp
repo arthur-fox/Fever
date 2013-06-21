@@ -184,7 +184,7 @@ bool MenuDirector::PlayLevel()
 
 bool MenuDirector::GenLevel()
 {
-    if ( MATLAB_ON && !ms_pGlobal->IsThreadRunning() )
+    if ( !MATLAB_OFF && !ms_pGlobal->IsThreadRunning() )
     {
         std::string songpath = DialogBox::OpenFileBrowser(FORMATS_AUDIO);
         if( songpath.compare( LEVEL_NOT_LOADED ) != 0 )
@@ -210,13 +210,23 @@ bool MenuDirector::GenLevel()
             }
         }
     }
-    else if ( !MATLAB_ON )
+    else if ( MATLAB_OFF )
     {
+        Mix_Chunk *chunk;
+        chunk = Mix_LoadWAV(MUSIC_FAIL);
+        Mix_PlayChannel(1, chunk, 0);
         printf("Cannot Generate levels without MATLAB_ON\n");
+        while( Mix_Playing(1));
+        Mix_FreeChunk(chunk);
     }
     else
     {
+        Mix_Chunk *chunk;
+        chunk = Mix_LoadWAV(MUSIC_FAIL);
+        Mix_PlayChannel(1, chunk, 0);
         printf("Wait for Level Generation to end!\n");
+        while( Mix_Playing(1));
+        Mix_FreeChunk(chunk);
     }
     
     return true;
@@ -313,16 +323,21 @@ void MenuDirector::Generate()
         chunk = Mix_LoadWAV(MUSIC_FAIL);
         Mix_PlayChannel(1, chunk, 0);
         printf( "Error generating level: %s \npath: %s\n", ms_lpath.c_str(), ms_spath.c_str() );
+        while( Mix_Playing(1));
+        Mix_FreeChunk(chunk);
     }
     else
     {
         Mix_Chunk *chunk;
         chunk = Mix_LoadWAV(MUSIC_SUCCESS);
+        Mix_VolumeChunk(chunk, 100);
         Mix_PlayChannel(1, chunk, 0);
         std::cout << "Successfuly generated: " << Path::NameFromPath(ms_lpath) + LEVEL_EXTENSION << std::endl;
+        while( Mix_Playing(1));
+        Mix_FreeChunk(chunk);
     }
     
-    ms_pGlobal->SetThreadRunning( false );
     printf("Time taken genning level: %dms, Gen option: %d\n", timeGeningLevel.GetTicks(), ms_genOption);
+    ms_pGlobal->SetThreadRunning( false );
     timeGeningLevel.Stop();
 }

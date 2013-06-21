@@ -13,6 +13,8 @@
 #include <fstream>
 #include <thread>
 
+const int EXTRA_SECONDS = 10;
+
 //TODO: 
 //  - Decision needs to be made on whether notes gen'd at runtime or statically
 // -> Tidy up code! Especially genfloor code!
@@ -212,10 +214,11 @@ float Floor::ThroughFloor( GameObject& rObject, float dt )
 #pragma mark -
 #pragma mark LevelGeneration
 
-// TODO: REWRITE THIS FUNCTION TO MAKE IT CLEARER AND MORE CORRECT
+// TODO: MAKE THIS FUNCTION CLEARER
 bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
 {
-    float signature, tempo, duration;
+    float signature, tempo, duration, normaliser;
+    int option;
     
     std::ifstream ilvlfile;
     ilvlfile.open( LEVEL_TEMP );
@@ -228,27 +231,43 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     ilvlfile >> signature;
     ilvlfile >> tempo;
     ilvlfile >> duration;
+    ilvlfile >> normaliser;
+    ilvlfile >> option;
     ilvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
     float noteFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * 60/bpm)*2
     
     int originalPointsSize = 0;
-    Point* pOriginalPoints = GenOriginalPoints(&originalPointsSize);
+    Point* pOriginalPoints;
+    
+    if (option == OPTION_RANDOM)
+    {
+        pOriginalPoints = GenRandomPoints(&originalPointsSize);
+    }
+    else
+    {
+        pOriginalPoints = GenOriginalPoints(&originalPointsSize);
+    }
 
     int smoothPointsSize = 0;
     Point* pSmoothPoints = GenSmoothPoints(pOriginalPoints, originalPointsSize, &smoothPointsSize);
     
     // DEBUG - Write FINAL_OUTPUT_FORMAT using OriginalPoints!
-//    std::ofstream olvlfile( lvlpath.c_str(), std::ios::trunc );
-//    olvlfile << songpath << std::endl;
-//    olvlfile << levelSpeed << " " << duration << " " << noteFreq << " " << originalPointsSize << std::endl;
-//    for (int i = 0; i < originalPointsSize; i++)
+//    if (GEN_JAGGED_HILLS_ON)
 //    {
-//        olvlfile << pOriginalPoints[i].GetX() << " " << pOriginalPoints[i].GetY() << " ";
+//        std::ofstream olvlfile( lvlpath.c_str(), std::ios::trunc );
+//        olvlfile << songpath << std::endl;
+//        olvlfile << levelSpeed << " " << duration << " " << noteFreq << " " << originalPointsSize << std::endl;
+//        for (int i = 0; i < originalPointsSize; i++)
+//        {
+//            olvlfile << pOriginalPoints[i].GetX() << " " << pOriginalPoints[i].GetY() << " ";
+//        }
+//        olvlfile << std::endl;
+//        olvlfile.close();
 //    }
-//    olvlfile << std::endl;
-//    olvlfile.close();
+//    else
+//    {
     
     // Write FINAL_OUTPUT_FORMAT into the file!
     std::ofstream olvlfile;
@@ -350,9 +369,8 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
     pOriginalPoints[0] = Point(0, pOriginalPoints[1].GetY());
     
     // Pad the End of the level so that it continues!
-    int extraSeconds =  10; //NOTE: This should Not be completely arbitrary
     int origPointSize = *pointsSize;
-    *pointsSize += extraSeconds;
+    *pointsSize += EXTRA_SECONDS;
     for (int i = origPointSize; i < *pointsSize; i++)
     {
         int x = pOriginalPoints[i-1].GetX() + xTravelledPerSecond;
@@ -401,83 +419,87 @@ Point* Floor::GenSmoothPoints(Point* pOriginalPoints, int originalPointsSize, in
     return pSmoothPoints;
 }
 
-//  THIS IS THE ORIGINAL VERSION WHICH WORKED TO MAKE RANDOM LEVELS!
-//  KEEPING THIS IN CASE THE ABOVE VERSION F'S UP
-//
-//float minDX = 100;
-//float minDY = 60;
-//int rangeDX = 200;
-//int rangeDY = 400;
-//
-//float x = -minDX;
-//float y = winSize.GetY()/2-minDY;
-//
-//float dy, ny;
-//float sign = 1; // +1 - going up, -1 - going  down
-//float paddingTop = 50;
-//float paddingBottom = 100;
-//
-//// Here we generate floor points pseudorandomly going up and down forming hills
-//for (int i=0; i<MAX_FLOOR_POINTS; i++) 
-//{
-//    pTempPoints[i] = Point(x, y);
-//    if ( i == 0 ) 
-//    {
-//        x = 0;
-//        y = winSize.GetY()/2;
-//    } 
-//    else 
-//    {
-//        x += rand()%rangeDX+minDX;
-//        while ( true ) 
-//        {
-//            dy = rand()%rangeDY+minDY;
-//            ny = y + dy*sign;
-//            if ( ny < winSize.GetY()-paddingTop && ny > paddingBottom ) 
-//            {
-//                break;   
-//            }
-//        }
-//        y = ny;
-//    }
-//    sign *= -1;
-//}
-//
-//
-//// The following code uses cosine approximations to make the hills smooth
-//int idx = 0;
-//for (int i = 0; i < MAX_FLOOR_POINTS; i++)
-//{
-//    Point p0 = pTempPoints[i-1];
-//    Point p1 = pTempPoints[i];
-//    int hSegments = floorf( (p1.GetX()-p0.GetX())/SEGMENT_WIDTH );
-//    float dx = (p1.GetX() - p0.GetX()) / hSegments;
-//    float da = M_PI / hSegments;
-//    float ymid = (p0.GetY() + p1.GetY()) / 2;
-//    float ampl = (p0.GetY() - p1.GetY()) / 2;
-//    
-//    Point pt0, pt1;
-//    pt0 = p0;
-//    for (int j = 0; j < hSegments+1; ++j) 
-//    {            
-//        pt1.SetX( p0.GetX() + j*dx );
-//        pt1.SetY( ymid + ampl * cosf(da*j) );
-//        
-//        pFloorPoints[idx] = pt0;
-//        idx++;
-//        
-//        pt0 = pt1;
-//    }
-//    
-//}
-//
-//// Here I need to write pFloorPoints into the file!
-//lvlfile << DEFAULT_LEVEL_SPEED << " " << idx << std::endl;
-//for (int i = 0; i < idx; i++)
-//{
-//    lvlfile << pFloorPoints[i].GetX() << " " << pFloorPoints[i].GetY() << " ";
-//}
-//lvlfile << std::endl;
-//
-//return true;
-//
+Point* Floor::GenRandomPoints(int* pointsSize)
+{
+    float signature, tempo, duration;
+    
+    std::ifstream ilvlfile;
+    ilvlfile.open( LEVEL_TEMP );
+    if ( !ilvlfile.good() )
+    {
+        printf( "Failed to open file: %s\n", LEVEL_TEMP );
+        return false;
+    }
+    
+    ilvlfile >> signature;
+    ilvlfile >> tempo;
+    ilvlfile >> duration;
+    ilvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
+    
+    //DEBUG
+    std::cout << "DEBUG: Option: " << OPTION_RANDOM << ", Max: N/A, Normaliser: N/A " << std::endl;
+    
+    float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
+//    float noteFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * 60/bpm)*2
+    float xTravelledPerSecond = levelSpeed*HEURISTIC_TIME_LOST;
+    float xMaxDistance = duration * xTravelledPerSecond;
+    *pointsSize = ceil( (duration) * (xTravelledPerSecond/POINT_FREQUENCY) );
+    Point* pRandomPoints = new Point[*pointsSize];
+
+    float minDX = 100;
+    float minDY = 60;
+    int rangeDX = 200;
+    int rangeDY = 400;
+
+    float x = -minDX;
+    float y = SCREEN_HEIGHT/2-minDY;
+
+    float dy, ny;
+    float sign = 1; // +1 - going up, -1 - going  down
+    float paddingTop = 50;
+    float paddingBottom = 100;
+
+    // Here we generate floor points pseudorandomly going up and down forming hills
+    srand(signature);
+    int i;
+    for (i=0; i<*pointsSize; i++)
+    {
+        pRandomPoints[i] = Point(x, y);
+        if ( i == 0 )
+        {
+            x = 0;
+            y = SCREEN_HEIGHT/2;
+        }
+        else
+        {
+            x += rand()%rangeDX+minDX;
+            while ( true )
+            {
+                dy = rand()%rangeDY+minDY;
+                ny = y + dy*sign;
+                if ( ny < SCREEN_HEIGHT-paddingTop && ny > paddingBottom )
+                {
+                    break;
+                }
+            }
+            y = ny;
+        }
+        sign *= -1;
+        
+        if (x >= xMaxDistance)
+            break;
+    }
+    *pointsSize = i;
+    
+    // Pad the End of the level so that it continues!
+    int origPointSize = *pointsSize;
+    *pointsSize += EXTRA_SECONDS;
+    for (int i = origPointSize; i < *pointsSize; i++)
+    {
+        int x = pRandomPoints[i-1].GetX() + xTravelledPerSecond;
+        int y = pRandomPoints[i-1].GetY();
+        pRandomPoints[i] = Point(x,y);
+    }
+    
+    return pRandomPoints;
+}

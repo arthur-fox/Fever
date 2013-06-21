@@ -63,11 +63,20 @@ Note::~Note()
 //Initialise all the static surfaces for the different types of platforms
 void Note::InitNoteImages()
 {
-//    ms_pNoteImg1 = Global::SharedGlobal()->LoadImage( RESOURCE_COIN );
-    ms_pNoteImg1 = Global::SharedGlobal()->LoadImage( RESOURCE_NOTE1 );
-    ms_pNoteImg2 = Global::SharedGlobal()->LoadImage( RESOURCE_NOTE2 );
-    ms_pNoteImg3 = Global::SharedGlobal()->LoadImage( RESOURCE_NOTE3 );
-    ms_pClefImg  = Global::SharedGlobal()->LoadImage( RESOURCE_CLEF  );
+    if (COINS_ON)
+    {
+        ms_pNoteImg1 = Global::SharedGlobal()->LoadImage( RESOURCE_COIN );
+        ms_pNoteImg2 = Global::SharedGlobal()->LoadImage( RESOURCE_COIN );
+        ms_pNoteImg3 = Global::SharedGlobal()->LoadImage( RESOURCE_COIN );
+        ms_pClefImg  = Global::SharedGlobal()->LoadImage( RESOURCE_COIN );
+    }
+    else
+    {
+        ms_pNoteImg1 = Global::SharedGlobal()->LoadImage( RESOURCE_NOTE1 );
+        ms_pNoteImg2 = Global::SharedGlobal()->LoadImage( RESOURCE_NOTE2 );
+        ms_pNoteImg3 = Global::SharedGlobal()->LoadImage( RESOURCE_NOTE3 );
+        ms_pClefImg  = Global::SharedGlobal()->LoadImage( RESOURCE_CLEF  );
+    }
     
     if ( ms_pNoteImg1 == 0 || ms_pNoteImg2 == 0 || ms_pNoteImg3 == 0 || ms_pClefImg == 0 )
     {

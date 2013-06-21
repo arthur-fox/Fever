@@ -60,6 +60,7 @@ private:
     Point* m_pFloorPoints;  // MAKE THIS INTO A VECTOR INSTEAD
     
     
+    static Point* GenRandomPoints(int* pointsSize);
     static Point* GenOriginalPoints(int* pointsSize);
     static Point* GenSmoothPoints(Point* pOriginalPoints, int originalPointsSize, int* smoothPointsSize);
     

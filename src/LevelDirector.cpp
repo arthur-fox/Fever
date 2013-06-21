@@ -310,9 +310,12 @@ void LevelDirector::PauseGame( bool& game, bool& playing )
     Mix_PauseMusic();
 	
 	//Write pause on the screen
-//	ms_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPause->w)/2, (SCREEN_HEIGHT - m_pPause->h)/2, m_pPause, m_pScreen );
-//	if( SDL_Flip( m_pScreen ) == -1 )
-//		exit(1);
+    if (!PAUSE_INVISIBLE_ON)
+    {
+        ms_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pPause->w)/2, (SCREEN_HEIGHT - m_pPause->h)/2, m_pPause, m_pScreen );
+        if( SDL_Flip( m_pScreen ) == -1 )
+            exit(1);
+    }
 	
 	//Set pauseEventFilter
 	SDL_SetEventFilter(PauseEventFilter);
@@ -474,8 +477,8 @@ bool LevelDirector::GenLevel(std::string lvlpath, std::string songpath, int opti
     ret &= Floor::GenFloorPoints(lvlpath, songpath);
     
     // Generated FINAL_OUTPUT, so I can now delete PARTIAL_OUTPUT
-    if ( remove(LEVEL_TEMP) != 0)
-        printf("Unable to delete LEVEL_TEMP\n");
+//    if ( remove(LEVEL_TEMP) != 0)
+//        printf("Unable to delete LEVEL_TEMP\n");
     
     return ret;
 }
@@ -491,18 +494,26 @@ bool LevelDirector::GenLevelMatlab(std::string songpath, int option)
     ms_pGlobal->EvalMatlabString( "tempo      = mirtempo(bands);" );
     ms_pGlobal->EvalMatlabString( "signature  = mirkey(bands);" );
     
-    /* OPTION DECIDES HOW ENERGY IS CALCULATED ie. Amplitude, Frequency or RMS */
-    ms_pGlobal->EvalMatlabString( "energy     = mirenvelope(audio);" ); // AMPLITUDE ENVELOPE FOR ALL FREQUENCIES
-    ms_pGlobal->EvalMatlabString( "normaliser = max(mirgetdata(energy));" );
-    if (option == OPTION_FREQUENCY)
+    /* OPTION DECIDES HOW ENERGY IS CALCULATED ie. Random, Amplitude, Frequency or RMS */
+    if (option != OPTION_RANDOM)
     {
-        ms_pGlobal->EvalMatlabString( "energy = mirflux(audio);" );
-        ms_pGlobal->EvalMatlabString( "energy = mirenvelope(energy);" );
+        ms_pGlobal->EvalMatlabString( "envelope     = mirenvelope(audio);" ); // AMPLITUDE ENVELOPE FOR ALL FREQUENCIES
+        ms_pGlobal->EvalMatlabString( "normaliser   = max(mirgetdata(envelope));" );
+        if (option == OPTION_FREQUENCY)
+        {
+            ms_pGlobal->EvalMatlabString( "envelope = mirflux(audio);" );
+            ms_pGlobal->EvalMatlabString( "envelope = mirenvelope(envelope);" );
+        }
+        else if (option == OPTION_ENERGY)
+        {
+            ms_pGlobal->EvalMatlabString( "envelope = mirrms(audio, 'Frame');" );
+            ms_pGlobal->EvalMatlabString( "envelope = mirenvelope(envelope);" );
+        }
     }
-    else if (option == OPTION_ENERGY)
+    else
     {
-        ms_pGlobal->EvalMatlabString( "energy = mirrms(audio, 'Frame');" );
-        ms_pGlobal->EvalMatlabString( "energy = mirenvelope(energy);" );
+        ms_pGlobal->EvalMatlabString( "envelope     = mirlength(audio);" );
+        ms_pGlobal->EvalMatlabString( "normaliser = -1;" );
     }
     std::stringstream stroption;
     stroption << "option = " << option << ";";
@@ -522,21 +533,27 @@ bool LevelDirector::GenLevelMatlab(std::string songpath, int option)
 //    ms_pGlobal->EvalMatlabString( "duration  = len/s;");
     ms_pGlobal->EvalMatlabString( "duration  = mirgetdata(mirlength(audio));");
     
+    
+    
+    if (option == OPTION_AMPLITUDE || option == OPTION_FREQUENCY)
+    {
+        ms_pGlobal->EvalMatlabString( "eSampling = get(envelope, 'Sampling');");
+    }
     if (option == OPTION_ENERGY)
     {
-        ms_pGlobal->EvalMatlabString( "eSampling = length(mirgetdata(energy))/duration;");
+        ms_pGlobal->EvalMatlabString( "eSampling = length(mirgetdata(envelope))/duration;");
     }
     else
     {
-        ms_pGlobal->EvalMatlabString( "eSampling = get(energy, 'Sampling');");
+        ms_pGlobal->EvalMatlabString( "eSampling = -1;" );
     }
     
     
     ms_pGlobal->EvalMatlabString( "tempo     = mirgetdata(tempo);");
-    ms_pGlobal->EvalMatlabString( "energy    = mirgetdata(energy);");
-    ms_pGlobal->EvalMatlabString( "eSize     = length(energy);");
-    ms_pGlobal->EvalMatlabString( "signature = mean(mirgetdata(signature))*mean(energy)*tempo;");
-    ms_pGlobal->EvalMatlabString( "bands     = mirgetdata(bands);");
+    ms_pGlobal->EvalMatlabString( "envelope  = mirgetdata(envelope);");
+    ms_pGlobal->EvalMatlabString( "eSize     = length(envelope);");
+    ms_pGlobal->EvalMatlabString( "signature = mean(mirgetdata(signature))*mean(envelope)*tempo;");
+//    ms_pGlobal->EvalMatlabString( "bands     = mirgetdata(bands);");
     
     ms_pGlobal->EvalMatlabString( std::string("lvlpath   = '" + std::string(LEVEL_TEMP) + "';").c_str() );
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, signature);");
@@ -546,8 +563,7 @@ bool LevelDirector::GenLevelMatlab(std::string songpath, int option)
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, option, '-append');");
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, eSampling, '-append');");
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, eSize, '-append','precision','%.1f');");
-    ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, energy,'-append','precision','%.10f');");
-    /* ENERGY BAND VALUES NOT USED SO COMMENTED OUT*/
+    ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, envelope,'-append','precision','%.10f');");
 //    ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, bandsSize, '-append');");
 //    ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, bands, '-append');");
     ms_pGlobal->EvalMatlabString( "dlmwrite(lvlpath, 'E', '-append');");
@@ -556,6 +572,8 @@ bool LevelDirector::GenLevelMatlab(std::string songpath, int option)
     
     return true;
 }
+
+
 
 /*
 engEvalString(pMateng, "mirverbose(0);");

@@ -29,7 +29,7 @@
 #define RESOURCE_CLEF           "TrebleClef_2.png"
 #define RESOURCE_LEFT_ARROW     "LeftArrow.png"
 #define RESOURCE_RIGHT_ARROW    "RightArrow.png"
-#define RESOURCE_BACKGROUND     "TransparentBackground.png"
+#define RESOURCE_BACKGROUND     "TransparentBackground.png"//"CompletelyTransparentBack.png"
 
 #define LEVEL_PATH              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Levels/"
 #define LEVEL_EXTENSION         ".lvl"
@@ -47,8 +47,11 @@
 #define FORMATS_AUDIO           "wav,mp3,WAV,MP3,AU"
 #define FORMATS_LEVEL           "lvl"
 
-//Debugging variables
-const bool MATLAB_ON = false;
+//Debugging variables -- when all are false the game has its complete functionality
+const bool MATLAB_OFF = false;
+const bool COINS_ON = false;
+const bool PAUSE_INVISIBLE_ON = true;
+//const bool GEN_JAGGED_HILLS_ON = false;
 
 // ************************************************************
 
@@ -102,7 +105,7 @@ const int INIT_MULT = 1;
 
 //Level constants
 const float WALL_WIDTH = SCREEN_WIDTH/34; //30;
-const float LEVEL_SPEED_FACTOR = 4; //3
+const float LEVEL_SPEED_FACTOR = 4; //3 - Maybe go back to 3? Tonight seems a bit too fast, or maybe its not?
 const float LEVEL_PADDING = PLAYER_HEIGHT*1.5;
 const int DEFAULT_LEVEL_SPEED = 350;
 

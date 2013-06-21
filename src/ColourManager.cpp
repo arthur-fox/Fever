@@ -76,7 +76,7 @@ bool ColourManager::Update( float dt )
     m_dtColour += ( m_levelSpeed/(LEVEL_SPEED_FACTOR) * dt/1000.f);
     if (m_dtColour > 2) //Gurantees we don't screw the UP variables
     {
-//        //Updating Primary vars
+        //Updating Primary vars
 //        int nextColour = m_dtColour*COLOUR_BAND_WIDTH;
 //        m_primaryUp = ( m_currColour <= m_pColours[nextColour] );
 //        m_dtColour = 0;
@@ -172,16 +172,16 @@ void ColourManager::UpdateChannel(int &currChannel)
 void ColourManager::Render( SDL_Surface* pScreen )
 {
     Uint32 col = SDL_MapRGB( pScreen->format, m_currColour.GetR(), m_currColour.GetG(), m_currColour.GetB() );
-    SDL_FillRect( pScreen, NULL, col );
+//    SDL_FillRect( pScreen, NULL, col );
     
-//    int pixelSize = sizeof(Uint32);
-//    SDL_LockSurface(pScreen);
-//    Uint32* pPixelData = static_cast<Uint32*> (pScreen->pixels);
-//    for (int i = 0; i < SCREEN_HEIGHT*SCREEN_WIDTH; i++)
-//    {
-//        memcpy( pPixelData+i, &col, pixelSize);
-//    }
-//    SDL_UnlockSurface(pScreen);
+    int pixelSize = sizeof(Uint32);
+    SDL_LockSurface(pScreen);
+    Uint32* pPixelData = static_cast<Uint32*> (pScreen->pixels);
+    for (int i = 0; i < SCREEN_HEIGHT*SCREEN_WIDTH; i++)
+    {
+        memcpy( pPixelData+i, &col, pixelSize);
+    }
+    SDL_UnlockSurface(pScreen);
     
     
 
