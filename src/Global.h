@@ -43,6 +43,9 @@
 
 #define MUSIC_SUCCESS           "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Songs/Secret.wav"
 #define MUSIC_FAIL              "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Songs/Error.wav"
+#define MUSIC_UI_SCROLL         "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Songs/FFUIScroll.wav"
+#define MUSIC_UI_ACCEPT         "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Songs/FFUIAccept.wav"
+#define MUSIC_NEW_RECORD        "/Users/arthurfox/Desktop/Programming/Xcode/Project_MusicToGame/Songs/NewRecord.wav"
 
 #define FORMATS_AUDIO           "wav,mp3,WAV,MP3,AU"
 #define FORMATS_LEVEL           "lvl"
@@ -142,6 +145,7 @@ public:
     
     void Initialisation();
     void CleanUp();
+    void PlaySound(const char* sound);
     
     TTF_Font* GetFont( int font ) const;
     SDL_Color GetColor( int color ) const;
@@ -164,6 +168,7 @@ private:
     TTF_Font  *m_pTinyFont, *m_pSmallFont, *m_pMediumFont, *m_pLargeFont, *m_pTitleFont;
     SDL_Color m_whiteColour;
     bool m_muted, m_dispFPS;
+    Mix_Chunk *sucChunk, *failChunk, *scrollChunk, *acceptChunk, *recordChunk;
     
     //Private Functions
 	Global();    

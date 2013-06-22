@@ -292,6 +292,91 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     return true;
 }
 
+Point* Floor::GenRandomPoints(int* pointsSize)
+{
+    float signature, tempo, duration;
+    
+    std::ifstream ilvlfile;
+    ilvlfile.open( LEVEL_TEMP );
+    if ( !ilvlfile.good() )
+    {
+        printf( "Failed to open file: %s\n", LEVEL_TEMP );
+        return false;
+    }
+    
+    ilvlfile >> signature;
+    ilvlfile >> tempo;
+    ilvlfile >> duration;
+    ilvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
+    
+    //DEBUG
+    std::cout << "DEBUG: Option: " << OPTION_RANDOM << ", Max: N/A, Normaliser: N/A " << std::endl;
+    
+    float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
+    //    float noteFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * 60/bpm)*2
+    float xTravelledPerSecond = levelSpeed*HEURISTIC_TIME_LOST;
+    float xMaxDistance = duration * xTravelledPerSecond;
+    *pointsSize = ceil( (duration) * (xTravelledPerSecond/POINT_FREQUENCY) );
+    Point* pRandomPoints = new Point[*pointsSize];
+    
+    float minDX = 100;
+    float minDY = 60;
+    int rangeDX = 200;
+    int rangeDY = 400;
+    
+    float x = -minDX;
+    float y = SCREEN_HEIGHT/2-minDY;
+    
+    float dy, ny;
+    float sign = 1; // +1 - going up, -1 - going  down
+    float paddingTop = 50;
+    float paddingBottom = 100;
+    
+    // Here we generate floor points pseudorandomly going up and down forming hills
+    srand(signature);
+    int i;
+    for (i=0; i<*pointsSize; i++)
+    {
+        pRandomPoints[i] = Point(x, y);
+        if ( i == 0 )
+        {
+            x = 0;
+            y = SCREEN_HEIGHT/2;
+        }
+        else
+        {
+            x += rand()%rangeDX+minDX;
+            while ( true )
+            {
+                dy = rand()%rangeDY+minDY;
+                ny = y + dy*sign;
+                if ( ny < SCREEN_HEIGHT-paddingTop && ny > paddingBottom )
+                {
+                    break;
+                }
+            }
+            y = ny;
+        }
+        sign *= -1;
+        
+        if (x >= xMaxDistance)
+            break;
+    }
+    *pointsSize = i;
+    
+    // Pad the End of the level so that it continues!
+    int origPointSize = *pointsSize;
+    *pointsSize += EXTRA_SECONDS;
+    for (int i = origPointSize; i < *pointsSize; i++)
+    {
+        int x = pRandomPoints[i-1].GetX() + xTravelledPerSecond;
+        int y = pRandomPoints[i-1].GetY();
+        pRandomPoints[i] = Point(x,y);
+    }
+    
+    return pRandomPoints;
+}
+
 Point* Floor::GenOriginalPoints(int* pointsSize)
 {
     std::ifstream ilvlfile;
@@ -417,89 +502,4 @@ Point* Floor::GenSmoothPoints(Point* pOriginalPoints, int originalPointsSize, in
     *smoothPointsSize = idx;
     
     return pSmoothPoints;
-}
-
-Point* Floor::GenRandomPoints(int* pointsSize)
-{
-    float signature, tempo, duration;
-    
-    std::ifstream ilvlfile;
-    ilvlfile.open( LEVEL_TEMP );
-    if ( !ilvlfile.good() )
-    {
-        printf( "Failed to open file: %s\n", LEVEL_TEMP );
-        return false;
-    }
-    
-    ilvlfile >> signature;
-    ilvlfile >> tempo;
-    ilvlfile >> duration;
-    ilvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
-    
-    //DEBUG
-    std::cout << "DEBUG: Option: " << OPTION_RANDOM << ", Max: N/A, Normaliser: N/A " << std::endl;
-    
-    float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
-//    float noteFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * 60/bpm)*2
-    float xTravelledPerSecond = levelSpeed*HEURISTIC_TIME_LOST;
-    float xMaxDistance = duration * xTravelledPerSecond;
-    *pointsSize = ceil( (duration) * (xTravelledPerSecond/POINT_FREQUENCY) );
-    Point* pRandomPoints = new Point[*pointsSize];
-
-    float minDX = 100;
-    float minDY = 60;
-    int rangeDX = 200;
-    int rangeDY = 400;
-
-    float x = -minDX;
-    float y = SCREEN_HEIGHT/2-minDY;
-
-    float dy, ny;
-    float sign = 1; // +1 - going up, -1 - going  down
-    float paddingTop = 50;
-    float paddingBottom = 100;
-
-    // Here we generate floor points pseudorandomly going up and down forming hills
-    srand(signature);
-    int i;
-    for (i=0; i<*pointsSize; i++)
-    {
-        pRandomPoints[i] = Point(x, y);
-        if ( i == 0 )
-        {
-            x = 0;
-            y = SCREEN_HEIGHT/2;
-        }
-        else
-        {
-            x += rand()%rangeDX+minDX;
-            while ( true )
-            {
-                dy = rand()%rangeDY+minDY;
-                ny = y + dy*sign;
-                if ( ny < SCREEN_HEIGHT-paddingTop && ny > paddingBottom )
-                {
-                    break;
-                }
-            }
-            y = ny;
-        }
-        sign *= -1;
-        
-        if (x >= xMaxDistance)
-            break;
-    }
-    *pointsSize = i;
-    
-    // Pad the End of the level so that it continues!
-    int origPointSize = *pointsSize;
-    *pointsSize += EXTRA_SECONDS;
-    for (int i = origPointSize; i < *pointsSize; i++)
-    {
-        int x = pRandomPoints[i-1].GetX() + xTravelledPerSecond;
-        int y = pRandomPoints[i-1].GetY();
-        pRandomPoints[i] = Point(x,y);
-    }
-    
-    return pRandomPoints;
 }

@@ -83,10 +83,16 @@ bool MenuDirector::Run( std::string* pLvlname )
                 m_displayScores = false;
             
             if( m_event.key.keysym.sym == SDLK_LEFT)
+            {
                 m_currScoreScreen = ((m_currScoreScreen-1 % m_totalScoreScreens) + m_totalScoreScreens) % m_totalScoreScreens;
+                ms_pGlobal->PlaySound(MUSIC_UI_SCROLL);
+            }
             
             if( m_event.key.keysym.sym == SDLK_RIGHT)
+            {
                 m_currScoreScreen = ((m_currScoreScreen+1 % m_totalScoreScreens) + m_totalScoreScreens) % m_totalScoreScreens;
+                ms_pGlobal->PlaySound(MUSIC_UI_SCROLL);
+            }
             
         }
         else
@@ -98,15 +104,29 @@ bool MenuDirector::Run( std::string* pLvlname )
             }
         
             if( m_event.key.keysym.sym == SDLK_UP)
+            {
                 m_menuOption = ((m_menuOption-1 % NUM_MENU_OPTIONS) + NUM_MENU_OPTIONS) % NUM_MENU_OPTIONS;
+                ms_pGlobal->PlaySound(MUSIC_UI_SCROLL);
+            }
             
             if( m_event.key.keysym.sym == SDLK_DOWN)
+            {
                 m_menuOption = ((m_menuOption+1 % NUM_MENU_OPTIONS) + NUM_MENU_OPTIONS) % NUM_MENU_OPTIONS;
+                ms_pGlobal->PlaySound(MUSIC_UI_SCROLL);
+            }
             
             if( m_event.key.keysym.sym == SDLK_RETURN)
+            {
+                if (m_menuOption != GEN_LEVEL && m_menuOption != PLAY_LEVEL)
+                    ms_pGlobal->PlaySound(MUSIC_UI_ACCEPT);
                 loop = HandleOption();
+            }
         }
         
+        if( m_event.type == SDL_KEYDOWN && m_event.key.keysym.sym == SDLK_m)
+        {
+            ms_pGlobal->MuteUnMute();      
+        }
         
         if (m_displayScores)
             m_pSceneManager->RenderInScores( m_pScreen, m_currScoreScreen, m_totalScoreScreens );
@@ -124,7 +144,7 @@ bool MenuDirector::Run( std::string* pLvlname )
 int MenuDirector::MainMenuEventFilter( const SDL_Event *pEvent )
 {
 	if( (pEvent->type == SDL_KEYDOWN  && 
-         (pEvent->key.keysym.sym == SDLK_RETURN
+         (pEvent->key.keysym.sym == SDLK_RETURN || pEvent->key.keysym.sym == SDLK_m
          || pEvent->key.keysym.sym == SDLK_UP   || pEvent->key.keysym.sym == SDLK_DOWN
          || pEvent->key.keysym.sym == SDLK_LEFT || pEvent->key.keysym.sym == SDLK_RIGHT))
          || pEvent->type == SDL_QUIT || pEvent->key.keysym.sym == SDLK_ESCAPE )
@@ -174,10 +194,12 @@ bool MenuDirector::PlayLevel()
     
     if ( m_loadedLevel.compare( LEVEL_NOT_LOADED ) == 0 )
     {
+        ms_pGlobal->PlaySound(MUSIC_FAIL);
         printf( "No level has been loaded!\n" );
         return true;
     }
-    
+
+    ms_pGlobal->PlaySound(MUSIC_UI_ACCEPT);
     std::cout << "Playing: " << Path::NameFromPath( m_loadedLevel ) + LEVEL_EXTENSION << std::endl;
     return false;
 }
@@ -212,21 +234,13 @@ bool MenuDirector::GenLevel()
     }
     else if ( MATLAB_OFF )
     {
-        Mix_Chunk *chunk;
-        chunk = Mix_LoadWAV(MUSIC_FAIL);
-        Mix_PlayChannel(1, chunk, 0);
         printf("Cannot Generate levels without MATLAB_ON\n");
-        while( Mix_Playing(1));
-        Mix_FreeChunk(chunk);
+        ms_pGlobal->PlaySound(MUSIC_FAIL);
     }
     else
     {
-        Mix_Chunk *chunk;
-        chunk = Mix_LoadWAV(MUSIC_FAIL);
-        Mix_PlayChannel(1, chunk, 0);
         printf("Wait for Level Generation to end!\n");
-        while( Mix_Playing(1));
-        Mix_FreeChunk(chunk);
+        ms_pGlobal->PlaySound(MUSIC_FAIL);
     }
     
     return true;
@@ -251,13 +265,25 @@ bool MenuDirector::HandleGenOption()
         }
             
         if( m_event.key.keysym.sym == SDLK_UP)
+        {
             ms_genOption = ((ms_genOption-1 % NUM_GEN_OPTIONS) + NUM_GEN_OPTIONS) % NUM_GEN_OPTIONS;
-            
+            ms_pGlobal->PlaySound(MUSIC_UI_SCROLL);
+        }
+        
         if( m_event.key.keysym.sym == SDLK_DOWN)
+        {
             ms_genOption = ((ms_genOption+1 % NUM_GEN_OPTIONS) + NUM_GEN_OPTIONS) % NUM_GEN_OPTIONS;
-            
+            ms_pGlobal->PlaySound(MUSIC_UI_SCROLL);
+        }
+        
+        if( m_event.type == SDL_KEYDOWN && m_event.key.keysym.sym == SDLK_m)
+        {
+            ms_pGlobal->MuteUnMute();
+        }
+        
         if( m_event.key.keysym.sym == SDLK_RETURN)
         {
+            ms_pGlobal->PlaySound(MUSIC_UI_ACCEPT);
             break;
         }
         
@@ -319,22 +345,13 @@ void MenuDirector::Generate()
     
     if ( !LevelDirector::GenLevel( ms_lpath, ms_spath, ms_genOption ) )
     {
-        Mix_Chunk *chunk;
-        chunk = Mix_LoadWAV(MUSIC_FAIL);
-        Mix_PlayChannel(1, chunk, 0);
         printf( "Error generating level: %s \npath: %s\n", ms_lpath.c_str(), ms_spath.c_str() );
-        while( Mix_Playing(1));
-        Mix_FreeChunk(chunk);
+        ms_pGlobal->PlaySound(MUSIC_FAIL);
     }
     else
     {
-        Mix_Chunk *chunk;
-        chunk = Mix_LoadWAV(MUSIC_SUCCESS);
-        Mix_VolumeChunk(chunk, 100);
-        Mix_PlayChannel(1, chunk, 0);
         std::cout << "Successfuly generated: " << Path::NameFromPath(ms_lpath) + LEVEL_EXTENSION << std::endl;
-        while( Mix_Playing(1));
-        Mix_FreeChunk(chunk);
+        ms_pGlobal->PlaySound(MUSIC_SUCCESS);
     }
     
     printf("Time taken genning level: %dms, Gen option: %d\n", timeGeningLevel.GetTicks(), ms_genOption);

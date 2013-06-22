@@ -111,7 +111,18 @@ void Global::InitMusic()
     if ( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 ) { 
         exit(1);
     }
-    m_muted = false; 
+    m_muted = false;
+
+    sucChunk = Mix_LoadWAV(MUSIC_SUCCESS);
+    Mix_VolumeChunk(sucChunk, 80);
+    failChunk = Mix_LoadWAV(MUSIC_FAIL);
+    Mix_VolumeChunk(failChunk, 80);
+    scrollChunk = Mix_LoadWAV(MUSIC_UI_SCROLL);
+    Mix_VolumeChunk(scrollChunk, 80);
+    acceptChunk = Mix_LoadWAV(MUSIC_UI_ACCEPT);
+    Mix_VolumeChunk(acceptChunk, 80);
+    recordChunk = Mix_LoadWAV(MUSIC_NEW_RECORD);
+    Mix_VolumeChunk(recordChunk, 80);
 }
 
 #pragma mark -
@@ -195,6 +206,29 @@ void Global::ApplySurface( int x, int y, SDL_Surface* pSource, SDL_Surface* pDes
 	
     //CHECK: KNOWN TO LEAK MEMORY
 	SDL_BlitSurface( pSource, pClip, pDestination, &offset );
+}
+
+void Global::PlaySound(const char* sound)
+{
+    std::string chosenSound = std::string(sound);
+    
+    if ( !IsMuted() )
+    {
+        if ( chosenSound.compare(MUSIC_SUCCESS) == 0 )
+            Mix_PlayChannel(1, sucChunk, 0);
+            
+        else if ( chosenSound.compare(MUSIC_FAIL) == 0 )
+            Mix_PlayChannel(1, failChunk, 0);
+        
+        else if ( chosenSound.compare(MUSIC_UI_SCROLL) == 0 )
+            Mix_PlayChannel(1, scrollChunk, 0);
+        
+        else if ( chosenSound.compare(MUSIC_UI_ACCEPT) == 0 )
+            Mix_PlayChannel(1, acceptChunk, 0);
+        
+        else if ( chosenSound.compare(MUSIC_NEW_RECORD) == 0 )
+            Mix_PlayChannel(1, recordChunk, 0);
+    }
 }
 
 #pragma mark -

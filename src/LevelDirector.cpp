@@ -363,6 +363,11 @@ bool LevelDirector::EndSequence(Camera& rCamera, Player& rPlayer, Floor& rFloor,
     }
     m_pSceneManager->UpdatePreviousScore(previousScore);
     
+//    if ( previousScore < m_score )
+//    {
+//        ms_pGlobal->PlaySound(MUSIC_NEW_RECORD);
+//    }
+    
     bool ending = true;
     while ( ending )
     {

@@ -15,17 +15,14 @@
 //  IF THINGS START BREAKING SET IT BACK TO COMPILER DEFAULT
 
 //TODO:
-// -> Add the final fantasy scrolling sounds, for when the player scrolls on the menu!
-// -> Add general UI sounds - this will require MUTE to be available in the menu as well!
-// -> Add "New Record" sound clip from smash bros when the level finishes and you get a new record!
-// -> Delete all levels and Gen them again, just in case!
-// -> Look at game speed! Feels too fast on tonight now, made me dizzy.
 // -> Make background have parallax effect!
-// -> Improve Note generation
 // -> Try and discover what the ifstream/ofstream bug is in level generation.
+//
+// -> Delete all levels and Gen them again, just in case!
+// -> Look at game speed! Feels too fast on tonight now, made me dizzy. Check if 4 is too much.
+// -> Improve Note generation
 // -> Profile game again
 // -> Implement some effects when hitting note or losing multiplier
-// -> Check if a levelspeed factor of 4 is too much.
 
 // -> Consider looking at brightness to act as valence - just need it to vary green channel -> Green down = darker, green up = lighter.
 

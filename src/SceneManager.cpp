@@ -130,6 +130,11 @@ SceneManager::SceneManager()
 
 void SceneManager::UpdateInLevel( float dt, float fps, int sc, int mult )
 {
+//    m_bgY += 10 * (dt/ 1000.f); //levelspeed
+//    
+//    if( m_bgY >= LEVEL_WIDTH )
+//        m_bgY = 0;
+    
     UpdateFrameRate( fps );
     UpdateMultiplier( mult );
     UpdateScore( sc );
@@ -210,6 +215,12 @@ void SceneManager::RenderInMainMenu( SDL_Surface* pScreen, int option )
     
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pHighScoreText->w)/2 - 120, (SCREEN_HEIGHT - m_pPlayer->h)/2 + (50*(option+1)), m_pPlayer, pScreen );
 	
+    //Render the mute icon if necessary
+    if ( m_pGlobal->IsMuted() )
+    {
+        m_pGlobal->ApplySurface( SCREEN_WIDTH - m_pMutedIcon->w - 12, SCREEN_HEIGHT - 50, m_pMutedIcon, pScreen );
+    }
+    
     if( SDL_Flip( pScreen ) == -1 )
 		exit(1);
 }
@@ -228,6 +239,12 @@ void SceneManager::RenderInGenOptions( SDL_Surface* pScreen, int option )
     
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pAmplitudeText->w)/2 - 120, (SCREEN_HEIGHT - m_pPlayer->h)/2 + ((option-2)*100 + 50), m_pPlayer, pScreen );
 	
+    //Render the mute icon if necessary
+    if ( m_pGlobal->IsMuted() )
+    {
+        m_pGlobal->ApplySurface( SCREEN_WIDTH - m_pMutedIcon->w - 12, SCREEN_HEIGHT - 50, m_pMutedIcon, pScreen );
+    }
+    
     if( SDL_Flip( pScreen ) == -1 )
 		exit(1);
 }
@@ -302,6 +319,12 @@ void SceneManager::RenderInScores( SDL_Surface* pScreen, int currScreen, int tot
         m_pGlobal->ApplySurface( SCREEN_WIDTH - m_pLeftArrow->w*1.5, (SCREEN_HEIGHT - m_pRightArrow->h)/2, m_pRightArrow, pScreen );
     }
     
+    //Render the mute icon if necessary
+    if ( m_pGlobal->IsMuted() )
+    {
+        m_pGlobal->ApplySurface( SCREEN_WIDTH - m_pMutedIcon->w - 12, SCREEN_HEIGHT - 50, m_pMutedIcon, pScreen );
+    }
+    
     if( SDL_Flip( pScreen ) == -1 )
 		exit(1);
 }
@@ -328,4 +351,10 @@ void SceneManager::RenderLevelOver( SDL_Surface* pScreen, std::string levelName,
     SDL_FreeSurface( m_pMult );
 	m_pMult = TTF_RenderText_Blended( m_pGlobal->GetFont( SMALL_FONT ), levelName.c_str(), m_pGlobal->GetColor( WHITE_COLOUR ) );
     m_pGlobal->ApplySurface( (SCREEN_WIDTH - m_pMult->w)/2, m_pMult->h, m_pMult, pScreen );
+    
+    //Render the mute icon if necessary
+    if ( m_pGlobal->IsMuted() )
+    {
+        m_pGlobal->ApplySurface( SCREEN_WIDTH - m_pMutedIcon->w - 12, SCREEN_HEIGHT - 50, m_pMutedIcon, pScreen );
+    }
 }
