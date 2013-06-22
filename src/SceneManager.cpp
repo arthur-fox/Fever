@@ -14,9 +14,11 @@
 #include <map>
 
 //initialise platform array and speed
-SceneManager::SceneManager()
+SceneManager::SceneManager(float levelSpeed)
 {
     m_pGlobal = Global::SharedGlobal();
+    m_levelSpeed = levelSpeed;
+    m_bgX = m_bgY = 0;
     
     //Render fps text
 	std::stringstream stream;
@@ -130,10 +132,9 @@ SceneManager::SceneManager()
 
 void SceneManager::UpdateInLevel( float dt, float fps, int sc, int mult )
 {
-//    m_bgY += 10 * (dt/ 1000.f); //levelspeed
-//    
-//    if( m_bgY >= LEVEL_WIDTH )
-//        m_bgY = 0;
+    m_bgX -= (m_levelSpeed/LEVEL_SPEED_FACTOR) * (dt/1000.f);
+    if( m_bgX <= -LEVEL_WIDTH )
+        m_bgX = 0;
     
     UpdateFrameRate( fps );
     UpdateMultiplier( mult );
@@ -252,7 +253,9 @@ void SceneManager::RenderInGenOptions( SDL_Surface* pScreen, int option )
 // Renders the background for in-game
 void SceneManager::RenderInLevel( SDL_Surface* pScreen, std::string levelName )
 {
-    m_pGlobal->ApplySurface(  0, 0, m_pBackground, pScreen );
+    //Render scrolling background
+    m_pGlobal->ApplySurface(  m_bgX, m_bgY, m_pBackground, pScreen );
+    m_pGlobal->ApplySurface(  m_bgX + LEVEL_WIDTH, m_bgY, m_pBackground, pScreen );
     
     //Render the multiplier and score
     m_pGlobal->ApplySurface( 10, 0, m_pMult, pScreen );

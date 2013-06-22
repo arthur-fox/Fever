@@ -19,7 +19,7 @@ class SceneManager
 {
 public:
     
-    SceneManager();
+    SceneManager(float levelSpeed = -1);
     
     void UpdateInLevel( float dt, float fps, int sc, int mult );
     void UpdatePreviousScore(int sc);
@@ -35,8 +35,8 @@ private:
     
     Global* m_pGlobal;
     
-    //The offsets of the background 
-    float m_bgX, m_bgY;
+    //The offsets of the background
+    float m_bgX, m_bgY, m_levelSpeed;
     
     //Surfaces for text
 	SDL_Surface *m_pFrames, *m_pScore, *m_pMult, *m_pPlayer, *m_pMutedIcon, *m_pFeverText, 

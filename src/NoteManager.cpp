@@ -48,18 +48,17 @@ void NoteManager::Update(float dt)
     
     if (m_creatingNotes && (notes.empty() || (notes.back().GetX()<= SCREEN_WIDTH - m_noteFreq)))
     {
-        //TODO: This needs to be perfected
         //NOTE: Not random since srand() always init to same seed
-        int floorHeight = m_pFloor->GetLastHeight();
+        int floorHeight = m_pFloor->GetLastHeight() - PLAYER_HEIGHT/2;
         
-        int diffInJumpAndFLoor = floorHeight - PLAYER_JUMP;
-        int range = (floorHeight - abs(diffInJumpAndFLoor));                
+//        int jumpHeight = floorHeight - PLAYER_JUMP;
+//        int range = (floorHeight - jumpHeight);
         
-        if (range == 0) range = 1; //Avoids division by 0
-        int randHeight = (rand() % range) + abs(diffInJumpAndFLoor);
+//        if (range == 0) range = 1; //Avoids division by 0
+        int randHeight = floorHeight - (rand() % PLAYER_JUMP);
         
 //        while (randHeight < NOTE_HEIGHT) randHeight += NOTE_HEIGHT/2;
-        while (randHeight + NOTE_HEIGHT >= floorHeight) randHeight -= NOTE_HEIGHT/2;
+//        while (randHeight + NOTE_HEIGHT >= floorHeight) randHeight -= NOTE_HEIGHT/2;
 //        if (randHeight < NOTE_HEIGHT) randHeight = NOTE_HEIGHT; //Last ditch attempt - Ensures notes not too far up
         
         NewNote(m_width, randHeight);

@@ -24,8 +24,6 @@ LevelDirector::LevelDirector(const std::string &pFilepath, SDL_Surface* pScreen)
     
     m_pScreen = pScreen;
     
-    m_pSceneManager = new SceneManager();
-    
     m_fps = FRAMES_PER_SECOND;
     m_mult = INIT_MULT;
     m_score = INIT_SCORE;
@@ -50,6 +48,8 @@ LevelDirector::LevelDirector(const std::string &pFilepath, SDL_Surface* pScreen)
     lvlfile >> m_songDuration;
     lvlfile >> m_noteFreq;
     m_songDuration *= 1000; // Convert to milliseconds
+    
+    m_pSceneManager = new SceneManager(m_levelSpeed);
     
     srand(m_signature);
 }
@@ -86,8 +86,13 @@ bool LevelDirector::Run()
     //Start playing the song
     Mix_Music* pMusic = Mix_LoadMUS( m_songpath.c_str());
     std::this_thread::sleep_for( std::chrono::milliseconds(100));
-    Mix_FadeInMusic( pMusic, 0, 5000 ); 
+    Mix_FadeInMusic( pMusic, 0, 5000 );
     song.Start();
+    
+    if (ms_pGlobal->IsMuted())
+        Mix_VolumeMusic(0);
+    else
+        Mix_VolumeMusic(128);
     
     m_pSceneManager->ResetScene();
     delta.Start();

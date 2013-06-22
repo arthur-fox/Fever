@@ -51,7 +51,7 @@
 #define FORMATS_LEVEL           "lvl"
 
 //Debugging variables -- when all are false the game has its complete functionality
-const bool MATLAB_OFF = false;
+const bool MATLAB_OFF = true;
 const bool COINS_ON = false;
 const bool PAUSE_INVISIBLE_ON = true;
 //const bool GEN_JAGGED_HILLS_ON = false;
@@ -71,7 +71,7 @@ const int SCREEN_HEIGHT = 576;//*1.45;
 const int SCREEN_BPP = 0;//32;
 
 //The dimensions of the level 
-const int LEVEL_WIDTH = SCREEN_WIDTH; //WRONG! - THIS VARIES BETWEEN SONGS!
+const int LEVEL_WIDTH = SCREEN_WIDTH; //This is just for background scrolling
 const int LEVEL_HEIGHT = SCREEN_HEIGHT*1.3;
 
 //File attributes
@@ -91,7 +91,7 @@ const int TITLE_FONT = 4;
 //Dimensions of player
 const int PLAYER_WIDTH = 100;
 const int PLAYER_HEIGHT = 70;
-const int PLAYER_JUMP = 180; // Rough estimate needed for Note generation
+const int PLAYER_JUMP = 80; // Rough estimate needed for Note generation
 
 //Player Constants
 const int INIT_JUMP = 1000; //766;
