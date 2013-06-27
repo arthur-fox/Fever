@@ -477,7 +477,7 @@ bool LevelDirector::GenLevel(std::string lvlpath, std::string songpath, int opti
     
     ms_pGlobal = Global::SharedGlobal();
     
-    // Create file and make PARTIAL_OUTPUT
+    // Generate PARTIAL_OUTPUT
     std::ofstream lvlfile(LEVEL_TEMP, std::ofstream::trunc);
     lvlfile.close();
     ret &= GenLevelMatlab(songpath, option);
@@ -549,7 +549,7 @@ bool LevelDirector::GenLevelMatlab(std::string songpath, int option)
     {
         ms_pGlobal->EvalMatlabString( "eSampling = get(envelope, 'Sampling');");
     }
-    if (option == OPTION_ENERGY)
+    else if (option == OPTION_ENERGY)
     {
         ms_pGlobal->EvalMatlabString( "eSampling = length(mirgetdata(envelope))/duration;");
     }

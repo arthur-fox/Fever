@@ -14,17 +14,10 @@
 //  C++ Standard Library = C++11
 //  IF THINGS START BREAKING SET IT BACK TO COMPILER DEFAULT
 
-//TODO:
-// -> Try and discover what the ifstream/ofstream bug is in level generation.
-// -> Fix gen if broken?
-//
-// -> Delete all levels and Gen them again, just in case!
-// -> Look at game speed! Feels too fast on tonight now, made me dizzy. Check if 4 is too much.
-// -> Profile game again
-//
 //FURTHER:
+// -> Note Gen could be improved by comparing diff in floor height and mapping that to difference in JUMP_HEIGHT!
 // -> Implement some effects when hitting note or losing multiplier
-// -> Consider looking at brightness to act as valence - just need it to vary green channel -> Green down = darker, green up = lighter.
+// -> Look at signal brightness to act as valence - just need it to vary green channel -> Green down = darker, green up = lighter.
 
 
 int main( int argc, char* args[] )

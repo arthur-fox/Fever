@@ -208,6 +208,7 @@ bool MenuDirector::GenLevel()
 {
     if ( !MATLAB_OFF && !ms_pGlobal->IsThreadRunning() )
     {
+        ms_pGlobal->PlaySound(MUSIC_UI_ACCEPT);
         std::string songpath = DialogBox::OpenFileBrowser(FORMATS_AUDIO);
         if( songpath.compare( LEVEL_NOT_LOADED ) != 0 )
         {

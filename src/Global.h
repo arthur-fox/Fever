@@ -51,9 +51,9 @@
 #define FORMATS_LEVEL           "lvl"
 
 //Debugging variables -- when all are false the game has its complete functionality
-const bool MATLAB_OFF = true;
+const bool MATLAB_OFF = false;
 const bool COINS_ON = false;
-const bool PAUSE_INVISIBLE_ON = true;
+const bool PAUSE_INVISIBLE_ON = false;
 //const bool GEN_JAGGED_HILLS_ON = false;
 
 // ************************************************************

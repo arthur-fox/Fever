@@ -220,8 +220,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     float signature, tempo, duration, normaliser;
     int option;
     
-    std::ifstream ilvlfile;
-    ilvlfile.open( LEVEL_TEMP );
+    std::ifstream ilvlfile(LEVEL_TEMP);
     if ( !ilvlfile.good() )
     {
         printf( "Failed to open file: %s\n", LEVEL_TEMP );
@@ -233,7 +232,7 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
     ilvlfile >> duration;
     ilvlfile >> normaliser;
     ilvlfile >> option;
-    ilvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
+    ilvlfile.close();
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
     float noteFreq = (levelSpeed*HEURISTIC_TIME_LOST * 60/tempo)*2; // (xtravelled * 60/bpm)*2
@@ -284,10 +283,11 @@ bool Floor::GenFloorPoints( std::string lvlpath, std::string songpath )
         olvlfile << pSmoothPoints[i].GetX() << " " << pSmoothPoints[i].GetY() << " ";
     }
     olvlfile << std::endl;
-    olvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
     
     delete pOriginalPoints;
     delete pSmoothPoints;
+    
+    olvlfile.close();
     
     return true;
 }
@@ -307,7 +307,7 @@ Point* Floor::GenRandomPoints(int* pointsSize)
     ilvlfile >> signature;
     ilvlfile >> tempo;
     ilvlfile >> duration;
-    ilvlfile.close(); //CHECK: Believe this many be causing errors because destructor called at the end of function as well?
+    ilvlfile.close(); 
     
     //DEBUG
     std::cout << "DEBUG: Option: " << OPTION_RANDOM << ", Max: N/A, Normaliser: N/A " << std::endl;
@@ -379,8 +379,7 @@ Point* Floor::GenRandomPoints(int* pointsSize)
 
 Point* Floor::GenOriginalPoints(int* pointsSize)
 {
-    std::ifstream ilvlfile;
-    ilvlfile.open( LEVEL_TEMP );
+    std::ifstream ilvlfile(LEVEL_TEMP);
     if ( !ilvlfile.good() )
     {
         printf( "Failed to open file: %s\n", LEVEL_TEMP );
@@ -400,7 +399,6 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
     ilvlfile >> envSize;
     
     float* envelopeArr = new float[envSize];
-    
     float maxVal = 0;
     for (int i = 0; i < envSize; i++)
     {
@@ -408,6 +406,7 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
         maxVal = std::max(maxVal, envelopeArr[i]);
     }
     ilvlfile.close();
+
 
     //DEBUG
     std::cout << "DEBUG: Option: " << option << ", Max: " << maxVal << ", Normaliser: " << normaliser << std::endl;
@@ -426,12 +425,13 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
     
     float levelSpeed = tempo*LEVEL_SPEED_FACTOR;
     float xTravelledPerSecond = levelSpeed*HEURISTIC_TIME_LOST;
-    *pointsSize = ceil( (duration) * (xTravelledPerSecond/POINT_FREQUENCY) );
+    float dataUsedPerPoint = sampling / (xTravelledPerSecond/POINT_FREQUENCY);
+    
+    int origPointSize = ceil( (duration) * (xTravelledPerSecond/POINT_FREQUENCY) );
+    *pointsSize = origPointSize + EXTRA_SECONDS; //Take padding into account
     Point* pOriginalPoints = new Point[*pointsSize];
     
-    float dataUsedPerPoint = sampling / (xTravelledPerSecond/POINT_FREQUENCY); 
-    
-    for (int i = 1; i < *pointsSize; i++)
+    for (int i = 1; i < origPointSize; i++)
     {
         int x = POINT_FREQUENCY*i + (WALL_WIDTH + PLAYER_WIDTH);
         float y = 0;
@@ -454,8 +454,6 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
     pOriginalPoints[0] = Point(0, pOriginalPoints[1].GetY());
     
     // Pad the End of the level so that it continues!
-    int origPointSize = *pointsSize;
-    *pointsSize += EXTRA_SECONDS;
     for (int i = origPointSize; i < *pointsSize; i++)
     {
         int x = pOriginalPoints[i-1].GetX() + xTravelledPerSecond;
@@ -471,7 +469,7 @@ Point* Floor::GenOriginalPoints(int* pointsSize)
 Point* Floor::GenSmoothPoints(Point* pOriginalPoints, int originalPointsSize, int* smoothPointsSize)
 {
     // CHECK: What should the exact size be?
-    Point* pSmoothPoints = new Point[originalPointsSize*originalPointsSize];
+    Point* pSmoothPoints = new Point[originalPointsSize*100];
     
     // The following code uses cosine approximations to make the hills smooth
     int idx = 0;
